@@ -1,5 +1,10 @@
 # MisterHealthy
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-26A5E4.svg?logo=telegram)](https://core.telegram.org/bots)
+[![Gemini AI](https://img.shields.io/badge/Gemini-3_Flash-4285F4.svg?logo=google)](https://ai.google.dev/)
+
 Bot Telegram de planification de repas personnalisé, propulsé par l'IA.
 
 MisterHealthy génère des menus hebdomadaires adaptés à ton profil (objectif, restrictions, équipement cuisine), avec recettes détaillées, liste de courses automatique et un système de gamification pour rester motivé.
