@@ -19,6 +19,17 @@ export type BotConversation = Conversation<BotContext, BotContext>;
 
 export const bot = new Bot<BotContext>(config.telegramBotToken);
 
+// Auth: only allowed users
+bot.use(async (ctx, next) => {
+  const userId = ctx.from?.id;
+  if (!userId) return;
+  if (config.allowedUsers.length > 0 && !config.allowedUsers.includes(userId)) {
+    await ctx.reply("Accès refusé. Ce bot est privé.");
+    return;
+  }
+  await next();
+});
+
 // Session and conversations
 bot.use(session({ initial: () => ({}) }));
 bot.use(conversations());
