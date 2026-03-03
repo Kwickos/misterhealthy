@@ -1,5 +1,5 @@
 import { InlineKeyboard, Keyboard } from "grammy";
-import type { MenuData } from "../types.js";
+import type { DayMenu, MenuData } from "../types.js";
 import { DAY_LABELS, MEAL_LABELS } from "./format.js";
 
 export function mainKeyboard(): Keyboard {
@@ -21,7 +21,7 @@ export function daysKeyboard(menu: MenuData): InlineKeyboard {
   return kb;
 }
 
-export function dayMealsKeyboard(dayKey: string, dayMenu: Record<string, unknown>): InlineKeyboard {
+export function dayMealsKeyboard(dayKey: string, dayMenu: DayMenu): InlineKeyboard {
   const kb = new InlineKeyboard();
   for (const mealKey of Object.keys(dayMenu)) {
     const label = MEAL_LABELS[mealKey] ?? mealKey;

@@ -1,4 +1,4 @@
-import { Bot, type Context, session } from "grammy";
+import { Bot, type Context, session, type SessionFlavor } from "grammy";
 import {
   type Conversation,
   type ConversationFlavor,
@@ -13,8 +13,9 @@ import { handleGenerateMenu, handleMenuCallbacks } from "./modules/menu/handlers
 import { handleMyMenu } from "./modules/menu/display.js";
 import { handleShoppingList } from "./modules/shopping/handlers.js";
 
-export type BotContext = ConversationFlavor<Context>;
-export type BotConversation = Conversation<BotContext>;
+type SessionData = Record<string, never>;
+export type BotContext = ConversationFlavor<Context & SessionFlavor<SessionData>>;
+export type BotConversation = Conversation<BotContext, BotContext>;
 
 export const bot = new Bot<BotContext>(config.telegramBotToken);
 
