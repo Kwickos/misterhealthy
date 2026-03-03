@@ -124,7 +124,7 @@ function buildResponseSchema(profile: Profile) {
   return schema;
 }
 
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-3-flash-preview";
 const MAX_RETRIES = 3;
 
 function sleep(ms: number): Promise<void> {
