@@ -85,6 +85,13 @@ export async function handleMenuCallbacks(ctx: BotContext) {
   const data = ctx.callbackQuery?.data;
   if (!data) return;
 
+  // profile:edit -> doesn't need a menu
+  if (data === "profile:edit") {
+    await ctx.answerCallbackQuery();
+    await ctx.conversation.enter("onboarding");
+    return;
+  }
+
   const profile = await getProfile(ctx.from!.id);
   if (!profile) return;
 
@@ -173,13 +180,6 @@ export async function handleMenuCallbacks(ctx: BotContext) {
     await deleteMenu(menu.id);
     await ctx.answerCallbackQuery({ text: "Menu supprimé" });
     await ctx.editMessageText("Menu supprimé. Clique sur \"Générer menu\" pour en créer un nouveau.");
-    return;
-  }
-
-  // profile:edit -> re-enter onboarding
-  if (data === "profile:edit") {
-    await ctx.answerCallbackQuery();
-    await ctx.conversation.enter("onboarding");
     return;
   }
 
