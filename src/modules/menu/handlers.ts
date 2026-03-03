@@ -1,9 +1,9 @@
 import type { BotContext, BotConversation } from "../../bot.js";
-import { getProfile, saveMenu, getLatestMenu, saveShoppingList, deleteMenu } from "../../services/supabase.js";
+import { getProfile, saveMenu, getLatestMenu, saveShoppingList, deleteMenu, getContextualBadgeNames } from "../../services/supabase.js";
 import { generateMenu } from "../../services/gemini.js";
 import { aggregateShoppingList } from "../../utils/shopping.js";
-import { formatMenuOverview, formatDayDetail, formatRecipe, formatIngredients } from "../../utils/format.js";
-import { daysKeyboard, dayMealsKeyboard, recipeBackKeyboard, mainKeyboard, onboardingDaysKeyboard } from "../../utils/keyboard.js";
+import { formatMenuOverview, formatDayDetail, formatRecipe, formatRecipeStep, formatIngredients, formatBatchCooking } from "../../utils/format.js";
+import { daysKeyboard, dayMealsKeyboard, recipeBackKeyboard, recipeStepKeyboard, mainKeyboard, onboardingDaysKeyboard, onboardingMealsKeyboard, onboardingServingsKeyboard } from "../../utils/keyboard.js";
 import type { MenuData, DayMenu, Meal } from "../../types.js";
 import { InlineKeyboard } from "grammy";
 
@@ -28,8 +28,13 @@ export async function generateMenuConversation(conversation: BotConversation, ct
     reply_markup: onboardingDaysKeyboard(),
   });
   while (true) {
-    const dayCtx = await conversation.waitForCallbackQuery(/^onb_day:|^onb_days:done/);
+    const dayCtx = await conversation.waitForCallbackQuery(/^onb_day:|^onb_days:done|^conv:cancel/);
     const data = dayCtx.callbackQuery.data;
+    if (data === "conv:cancel") {
+      await dayCtx.answerCallbackQuery();
+      await ctx.reply("Génération annulée.", { reply_markup: mainKeyboard() });
+      return;
+    }
     if (data === "onb_days:done") {
       await dayCtx.answerCallbackQuery();
       break;
@@ -48,9 +53,58 @@ export async function generateMenuConversation(conversation: BotConversation, ct
     ? selectedDays
     : ["lundi", "mardi", "mercredi", "jeudi", "vendredi"];
 
-  // 2. Ask for extra instructions
-  await ctx.reply("Des précisions pour cette semaine ? (ou envoie \"non\")\n(ex: \"cette semaine light\", \"avec du poisson\", \"budget serré\")");
+  // 2. Ask which meals
+  const selectedMeals: string[] = [];
+  await ctx.reply("Quels repas ? (clique puis Valider)", {
+    reply_markup: onboardingMealsKeyboard(),
+  });
+  while (true) {
+    const mealCtx = await conversation.waitForCallbackQuery(/^meal:|^meals:done|^conv:cancel/);
+    const data = mealCtx.callbackQuery.data;
+    if (data === "conv:cancel") {
+      await mealCtx.answerCallbackQuery();
+      await ctx.reply("Génération annulée.", { reply_markup: mainKeyboard() });
+      return;
+    }
+    if (data === "meals:done") {
+      await mealCtx.answerCallbackQuery();
+      break;
+    }
+    const meal = data.replace("meal:", "");
+    if (selectedMeals.includes(meal)) {
+      selectedMeals.splice(selectedMeals.indexOf(meal), 1);
+      await mealCtx.answerCallbackQuery({ text: `${meal} retiré` });
+    } else {
+      selectedMeals.push(meal);
+      await mealCtx.answerCallbackQuery({ text: `${meal} ajouté ✓` });
+    }
+  }
+
+  const mealsConfig = selectedMeals.length > 0
+    ? selectedMeals
+    : profile.meals_config;
+
+  // 3. Ask servings
+  await ctx.reply("Pour combien de personnes ?", {
+    reply_markup: onboardingServingsKeyboard(),
+  });
+  const servingsCtx = await conversation.waitForCallbackQuery(/^servings:|^conv:cancel/);
+  const servingsData = servingsCtx.callbackQuery.data;
+  if (servingsData === "conv:cancel") {
+    await servingsCtx.answerCallbackQuery();
+    await ctx.reply("Génération annulée.", { reply_markup: mainKeyboard() });
+    return;
+  }
+  await servingsCtx.answerCallbackQuery();
+  const servings = parseInt(servingsData.replace("servings:", ""));
+
+  // 4. Ask for extra instructions
+  await ctx.reply("Des précisions pour cette semaine ? (ou envoie \"non\" ou /cancel pour annuler)\n(ex: \"cette semaine light\", \"avec du poisson\", \"budget serré\")");
   const extraCtx = await conversation.waitFor("message:text");
+  if (extraCtx.message.text.trim() === "/cancel") {
+    await ctx.reply("Génération annulée.", { reply_markup: mainKeyboard() });
+    return;
+  }
   const extraInstructions = extraCtx.message.text.toLowerCase() === "non"
     ? undefined
     : extraCtx.message.text;
@@ -61,8 +115,9 @@ export async function generateMenuConversation(conversation: BotConversation, ct
   });
 
   try {
-    const profileWithDays = { ...profile, menu_days: menuDays };
-    const menuData = await generateMenu(profileWithDays, extraInstructions);
+    const profileWithDays = { ...profile, menu_days: menuDays, meals_config: mealsConfig, servings };
+    const badgeNames = await getContextualBadgeNames();
+    const menuData = await generateMenu(profileWithDays, extraInstructions, badgeNames);
     const weekStart = getWeekStart();
 
     const menu = await saveMenu(profile.id, weekStart, menuData, extraInstructions);
@@ -120,8 +175,41 @@ export async function handleMenuCallbacks(ctx: BotContext) {
     return;
   }
 
-  // recipe:lundi:dejeuner -> show recipe
+  // recipe:lundi:dejeuner -> show step 1
   if (data.startsWith("recipe:")) {
+    const [, dayKey, mealKey] = data.split(":");
+    const meal = (menuData.days[dayKey] as Record<string, Meal>)?.[mealKey];
+    if (!meal) {
+      await ctx.answerCallbackQuery({ text: "Recette non trouvée" });
+      return;
+    }
+    await ctx.answerCallbackQuery();
+    await ctx.editMessageText(formatRecipeStep(meal, 0), {
+      parse_mode: "HTML",
+      reply_markup: recipeStepKeyboard(dayKey, mealKey, 0, meal.steps.length),
+    });
+    return;
+  }
+
+  // step:lundi:dejeuner:2 -> show step N
+  if (data.startsWith("step:")) {
+    const [, dayKey, mealKey, stepStr] = data.split(":");
+    const meal = (menuData.days[dayKey] as Record<string, Meal>)?.[mealKey];
+    if (!meal) {
+      await ctx.answerCallbackQuery({ text: "Recette non trouvée" });
+      return;
+    }
+    const stepIndex = parseInt(stepStr);
+    await ctx.answerCallbackQuery();
+    await ctx.editMessageText(formatRecipeStep(meal, stepIndex), {
+      parse_mode: "HTML",
+      reply_markup: recipeStepKeyboard(dayKey, mealKey, stepIndex, meal.steps.length),
+    });
+    return;
+  }
+
+  // recipe_full:lundi:dejeuner -> show all steps
+  if (data.startsWith("recipe_full:")) {
     const [, dayKey, mealKey] = data.split(":");
     const meal = (menuData.days[dayKey] as Record<string, Meal>)?.[mealKey];
     if (!meal) {
@@ -148,6 +236,21 @@ export async function handleMenuCallbacks(ctx: BotContext) {
     await ctx.editMessageText(formatIngredients(meal), {
       parse_mode: "HTML",
       reply_markup: recipeBackKeyboard(dayKey),
+    });
+    return;
+  }
+
+  // batch:view -> show batch cooking
+  if (data === "batch:view") {
+    const text = formatBatchCooking(menuData);
+    if (!text) {
+      await ctx.answerCallbackQuery({ text: "Pas de batch cooking" });
+      return;
+    }
+    await ctx.answerCallbackQuery();
+    await ctx.editMessageText(text, {
+      parse_mode: "HTML",
+      reply_markup: new InlineKeyboard().text("⬅️ Retour", "back:menu"),
     });
     return;
   }

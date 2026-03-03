@@ -28,6 +28,7 @@ export interface Meal {
   prep_time: string;
   ingredients: Ingredient[];
   steps: string[];
+  badges?: string[];
 }
 
 export interface DayMenu {
@@ -68,4 +69,59 @@ export interface ShoppingList {
   menu_id: string;
   items: ShoppingItem[];
   created_at: string;
+}
+
+export interface BadgeDefinition {
+  id: string;
+  name: string;
+  description: string;
+  emoji: string;
+  source: "predefined" | "generated";
+  category: string;
+  threshold: number | null;
+  created_at: string;
+}
+
+export interface UserStats {
+  id: string;
+  user_id: string;
+  xp: number;
+  level: number;
+  current_streak: number;
+  best_streak: number;
+  total_meals: number;
+  total_photos: number;
+  total_batch: number;
+  perfect_weeks: number;
+  last_validation_date: string | null;
+  created_at: string;
+}
+
+export interface MealValidation {
+  id: string;
+  user_id: string;
+  menu_id: string;
+  day_key: string;
+  meal_key: string;
+  photo_file_id: string | null;
+  xp_earned: number;
+  validated_at: string;
+}
+
+export interface UserBadge {
+  id: string;
+  user_id: string;
+  badge_id: string;
+  earned_at: string;
+  meal_validation_id: string | null;
+}
+
+export interface ReminderSettings {
+  id: string;
+  user_id: string;
+  petit_dej: string;
+  dejeuner: string;
+  snack: string;
+  diner: string;
+  streak_alert: string;
 }

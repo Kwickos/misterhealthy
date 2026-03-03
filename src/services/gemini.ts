@@ -26,7 +26,7 @@ Règles CRITIQUES pour les recettes (steps) :
 15. Indiquer les temps de cuisson précis (ex: "Faire revenir 5 min à feu moyen" au lieu de "Faire revenir").
 16. Chaque étape doit être une action claire et unique. Minimum 4-5 étapes par recette.`;
 
-function buildUserPrompt(profile: Profile, extraInstructions?: string): string {
+function buildUserPrompt(profile: Profile, extraInstructions?: string, badgeNames?: string[]): string {
   const lines = [
     `Profil utilisateur :`,
     `- Poids : ${profile.weight ?? "non renseigné"} kg`,
@@ -45,6 +45,12 @@ function buildUserPrompt(profile: Profile, extraInstructions?: string): string {
   }
   if (extraInstructions) {
     lines.push(`\nInstructions spéciales pour cette semaine : ${extraInstructions}`);
+  }
+  if (badgeNames && badgeNames.length > 0) {
+    lines.push(`\nBadges disponibles à attribuer aux plats :`);
+    lines.push(badgeNames.join(", "));
+    lines.push(`\nPour chaque repas, attribue dans le champ "badges" les badges pertinents parmi la liste ci-dessus.`);
+    lines.push(`Tu peux aussi inventer UN NOUVEAU badge si un plat le mérite vraiment (nom court et fun + même style que les existants). N'invente un badge que si c'est vraiment justifié, la plupart du temps les badges existants suffisent. Si aucun badge ne correspond, laisse le tableau vide.`);
   }
   lines.push(`\nGénère le menu de la semaine en JSON.`);
   return lines.join("\n");
@@ -69,8 +75,9 @@ function buildResponseSchema(profile: Profile) {
         },
       },
       steps: { type: "array" as const, items: { type: "string" as const } },
+      badges: { type: "array" as const, items: { type: "string" as const } },
     },
-    required: ["name", "prep_time", "ingredients", "steps"],
+    required: ["name", "prep_time", "ingredients", "steps", "badges"],
   };
 
   const dayProperties: Record<string, typeof mealSchema> = {};
@@ -133,9 +140,10 @@ function sleep(ms: number): Promise<void> {
 
 export async function generateMenu(
   profile: Profile,
-  extraInstructions?: string
+  extraInstructions?: string,
+  existingBadgeNames?: string[]
 ): Promise<MenuData> {
-  const prompt = buildUserPrompt(profile, extraInstructions);
+  const prompt = buildUserPrompt(profile, extraInstructions, existingBadgeNames);
   const schema = buildResponseSchema(profile);
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {

@@ -6,7 +6,9 @@ export function mainKeyboard(): Keyboard {
   return new Keyboard()
     .text("🍽 Générer menu").text("📋 Mon menu")
     .row()
-    .text("🛒 Liste de courses").text("👤 Mon profil")
+    .text("🛒 Liste de courses").text("📊 Mes stats")
+    .row()
+    .text("👤 Mon profil")
     .resized()
     .persistent();
 }
@@ -17,6 +19,9 @@ export function daysKeyboard(menu: MenuData): InlineKeyboard {
   for (let i = 0; i < days.length; i++) {
     kb.text(DAY_LABELS[days[i]] ?? days[i], `day:${days[i]}`);
     if ((i + 1) % 4 === 0) kb.row();
+  }
+  if (menu.batch_cooking) {
+    kb.row().text("🍳 Batch cooking", "batch:view");
   }
   kb.row().text("🗑 Supprimer ce menu", "menu:delete");
   return kb;
@@ -38,6 +43,26 @@ export function recipeBackKeyboard(dayKey: string): InlineKeyboard {
   return new InlineKeyboard().text("⬅️ Retour", `day:${dayKey}`);
 }
 
+export function recipeStepKeyboard(
+  dayKey: string,
+  mealKey: string,
+  stepIndex: number,
+  totalSteps: number
+): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  if (stepIndex > 0) {
+    kb.text("⬅️ Précédent", `step:${dayKey}:${mealKey}:${stepIndex - 1}`);
+  }
+  if (stepIndex < totalSteps - 1) {
+    kb.text("Suivant ➡️", `step:${dayKey}:${mealKey}:${stepIndex + 1}`);
+  }
+  kb.row();
+  kb.text("📋 Toutes les étapes", `recipe_full:${dayKey}:${mealKey}`);
+  kb.row();
+  kb.text("⬅️ Retour", `day:${dayKey}`);
+  return kb;
+}
+
 export function generateMenuKeyboard(): InlineKeyboard {
   return new InlineKeyboard()
     .text("✅ Générer", "gen:confirm")
@@ -52,7 +77,9 @@ export function onboardingGoalKeyboard(): InlineKeyboard {
     .text("Prise de masse", "goal:prise_masse")
     .row()
     .text("Maintien", "goal:maintien")
-    .text("Mieux manger", "goal:manger_equilibre");
+    .text("Mieux manger", "goal:manger_equilibre")
+    .row()
+    .text("❌ Annuler", "conv:cancel");
 }
 
 export function onboardingServingsKeyboard(): InlineKeyboard {
@@ -60,7 +87,9 @@ export function onboardingServingsKeyboard(): InlineKeyboard {
     .text("1", "servings:1")
     .text("2", "servings:2")
     .text("3", "servings:3")
-    .text("4+", "servings:4");
+    .text("4+", "servings:4")
+    .row()
+    .text("❌ Annuler", "conv:cancel");
 }
 
 export function onboardingMealsKeyboard(): InlineKeyboard {
@@ -71,7 +100,9 @@ export function onboardingMealsKeyboard(): InlineKeyboard {
     .text("🍰 Collation", "meal:collation")
     .text("🌙 Dîner", "meal:diner")
     .row()
-    .text("✅ Valider", "meals:done");
+    .text("✅ Valider", "meals:done")
+    .row()
+    .text("❌ Annuler", "conv:cancel");
 }
 
 export function onboardingDaysKeyboard(): InlineKeyboard {
@@ -82,13 +113,16 @@ export function onboardingDaysKeyboard(): InlineKeyboard {
     if ((i + 1) % 4 === 0) kb.row();
   }
   kb.row().text("✅ Valider", "onb_days:done");
+  kb.row().text("❌ Annuler", "conv:cancel");
   return kb;
 }
 
 export function onboardingBatchKeyboard(): InlineKeyboard {
   return new InlineKeyboard()
     .text("Oui", "batch:true")
-    .text("Non", "batch:false");
+    .text("Non", "batch:false")
+    .row()
+    .text("❌ Annuler", "conv:cancel");
 }
 
 export function onboardingRestrictionsKeyboard(): InlineKeyboard {
@@ -99,7 +133,9 @@ export function onboardingRestrictionsKeyboard(): InlineKeyboard {
     .text("Sans lactose", "restrict:sans_lactose")
     .text("Aucune", "restrict:aucune")
     .row()
-    .text("✅ Valider", "restrictions:done");
+    .text("✅ Valider", "restrictions:done")
+    .row()
+    .text("❌ Annuler", "conv:cancel");
 }
 
 export function onboardingEquipmentKeyboard(): InlineKeyboard {
