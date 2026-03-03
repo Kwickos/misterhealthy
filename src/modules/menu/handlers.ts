@@ -1,10 +1,11 @@
-import type { BotContext } from "../../bot.js";
+import type { BotContext, BotConversation } from "../../bot.js";
 import { getProfile, saveMenu, getLatestMenu, saveShoppingList } from "../../services/supabase.js";
 import { generateMenu } from "../../services/gemini.js";
 import { aggregateShoppingList } from "../../utils/shopping.js";
 import { formatMenuOverview, formatDayDetail, formatRecipe, formatIngredients } from "../../utils/format.js";
-import { daysKeyboard, dayMealsKeyboard, recipeBackKeyboard, mainKeyboard } from "../../utils/keyboard.js";
+import { daysKeyboard, dayMealsKeyboard, recipeBackKeyboard, mainKeyboard, onboardingDaysKeyboard } from "../../utils/keyboard.js";
 import type { MenuData, DayMenu, Meal } from "../../types.js";
+import { InlineKeyboard } from "grammy";
 
 function getWeekStart(): string {
   const now = new Date();
@@ -14,24 +15,58 @@ function getWeekStart(): string {
   return monday.toISOString().split("T")[0];
 }
 
-export async function handleGenerateMenu(ctx: BotContext) {
+export async function generateMenuConversation(conversation: BotConversation, ctx: BotContext) {
   const profile = await getProfile(ctx.from!.id);
   if (!profile) {
     await ctx.reply("Tu n'as pas encore de profil. Tape /start pour commencer.");
     return;
   }
 
+  // 1. Ask which days
+  const selectedDays: string[] = [];
+  await ctx.reply("Pour quels jours veux-tu un menu ? (clique puis Valider)", {
+    reply_markup: onboardingDaysKeyboard(),
+  });
+  while (true) {
+    const dayCtx = await conversation.waitForCallbackQuery(/^onb_day:|^onb_days:done/);
+    const data = dayCtx.callbackQuery.data;
+    if (data === "onb_days:done") {
+      await dayCtx.answerCallbackQuery();
+      break;
+    }
+    const day = data.replace("onb_day:", "");
+    if (selectedDays.includes(day)) {
+      selectedDays.splice(selectedDays.indexOf(day), 1);
+      await dayCtx.answerCallbackQuery({ text: `${day} retiré` });
+    } else {
+      selectedDays.push(day);
+      await dayCtx.answerCallbackQuery({ text: `${day} ajouté ✓` });
+    }
+  }
+
+  const menuDays = selectedDays.length > 0
+    ? selectedDays
+    : ["lundi", "mardi", "mercredi", "jeudi", "vendredi"];
+
+  // 2. Ask for extra instructions
+  await ctx.reply("Des précisions pour cette semaine ? (ou envoie \"non\")\n(ex: \"cette semaine light\", \"avec du poisson\", \"budget serré\")");
+  const extraCtx = await conversation.waitFor("message:text");
+  const extraInstructions = extraCtx.message.text.toLowerCase() === "non"
+    ? undefined
+    : extraCtx.message.text;
+
+  // 3. Generate
   await ctx.reply("⏳ Je génère ton menu personnalisé, ça peut prendre quelques secondes...", {
     reply_markup: mainKeyboard(),
   });
 
   try {
-    const menuData = await generateMenu(profile);
+    const profileWithDays = { ...profile, menu_days: menuDays };
+    const menuData = await generateMenu(profileWithDays, extraInstructions);
     const weekStart = getWeekStart();
 
-    const menu = await saveMenu(profile.id, weekStart, menuData);
+    const menu = await saveMenu(profile.id, weekStart, menuData, extraInstructions);
 
-    // Generate and save shopping list
     const items = aggregateShoppingList(menuData);
     await saveShoppingList(menu.id, items);
 

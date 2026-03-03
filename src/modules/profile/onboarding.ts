@@ -5,10 +5,8 @@ import {
   onboardingGoalKeyboard,
   onboardingServingsKeyboard,
   onboardingMealsKeyboard,
-  onboardingDaysKeyboard,
   onboardingBatchKeyboard,
   onboardingRestrictionsKeyboard,
-  onboardingEquipmentKeyboard,
 } from "../../utils/keyboard.js";
 
 export async function onboarding(conversation: BotConversation, ctx: BotContext) {
@@ -68,29 +66,7 @@ export async function onboarding(conversation: BotConversation, ctx: BotContext)
     }
   }
 
-  // 8. Menu days (multi-select)
-  const selectedDays: string[] = [];
-  await ctx.reply("Quels jours ? (clique puis Valider)", {
-    reply_markup: onboardingDaysKeyboard(),
-  });
-  while (true) {
-    const dayCtx = await conversation.waitForCallbackQuery(/^onb_day:|^onb_days:done/);
-    const data = dayCtx.callbackQuery.data;
-    if (data === "onb_days:done") {
-      await dayCtx.answerCallbackQuery();
-      break;
-    }
-    const day = data.replace("onb_day:", "");
-    if (selectedDays.includes(day)) {
-      selectedDays.splice(selectedDays.indexOf(day), 1);
-      await dayCtx.answerCallbackQuery({ text: `${day} retiré` });
-    } else {
-      selectedDays.push(day);
-      await dayCtx.answerCallbackQuery({ text: `${day} ajouté ✓` });
-    }
-  }
-
-  // 9. Batch cooking
+  // 8. Batch cooking
   await ctx.reply("Tu veux faire du batch cooking ?", { reply_markup: onboardingBatchKeyboard() });
   const batchCtx = await conversation.waitForCallbackQuery(/^batch:/);
   const batchCooking = batchCtx.callbackQuery.data === "batch:true";
@@ -123,27 +99,10 @@ export async function onboarding(conversation: BotConversation, ctx: BotContext)
     }
   }
 
-  // 11. Equipment (multi-select)
-  const equipment: string[] = [];
-  await ctx.reply("Quel équipement cuisine ? (clique puis Valider)", {
-    reply_markup: onboardingEquipmentKeyboard(),
-  });
-  while (true) {
-    const eCtx = await conversation.waitForCallbackQuery(/^equip:|^equipment:done/);
-    const data = eCtx.callbackQuery.data;
-    if (data === "equipment:done") {
-      await eCtx.answerCallbackQuery();
-      break;
-    }
-    const e = data.replace("equip:", "");
-    if (equipment.includes(e)) {
-      equipment.splice(equipment.indexOf(e), 1);
-      await eCtx.answerCallbackQuery({ text: `${e} retiré` });
-    } else {
-      equipment.push(e);
-      await eCtx.answerCallbackQuery({ text: `${e} ajouté ✓` });
-    }
-  }
+  // 11. Equipment (free text)
+  await ctx.reply("Quel équipement cuisine tu as ? Décris ce que tu as.\n(ex: \"four, plaques, thermomix, airfryer, micro-ondes, pas de robot\")");
+  const equipCtx = await conversation.waitFor("message:text");
+  const equipmentText = equipCtx.message.text;
 
   // 12. Extra preferences
   await ctx.reply("Autres précisions ? (ou envoie \"non\")");
@@ -158,11 +117,10 @@ export async function onboarding(conversation: BotConversation, ctx: BotContext)
     age,
     goal,
     meals_config: selectedMeals.length > 0 ? selectedMeals : ["dejeuner", "diner"],
-    menu_days: selectedDays.length > 0 ? selectedDays : ["lundi", "mardi", "mercredi", "jeudi", "vendredi"],
     servings,
     batch_cooking: batchCooking,
     dietary_restrictions: restrictions,
-    kitchen_equipment: equipment.length > 0 ? equipment : ["plaques"],
+    kitchen_equipment: [equipmentText],
     extra_preferences: extra,
   });
 

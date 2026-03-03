@@ -26,7 +26,6 @@ export async function handleProfile(ctx: BotContext) {
     `Objectif : ${goalLabels[profile.goal] ?? profile.goal}`,
     `Personnes : ${profile.servings}`,
     `Repas : ${profile.meals_config.join(", ")}`,
-    `Jours : ${profile.menu_days.join(", ")}`,
     `Batch cooking : ${profile.batch_cooking ? "Oui" : "Non"}`,
     `Restrictions : ${profile.dietary_restrictions.length > 0 ? profile.dietary_restrictions.join(", ") : "Aucune"}`,
     `Équipement : ${profile.kitchen_equipment.join(", ")}`,

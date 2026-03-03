@@ -9,7 +9,7 @@ import { config } from "./config.js";
 import { mainKeyboard } from "./utils/keyboard.js";
 import { onboarding } from "./modules/profile/onboarding.js";
 import { handleProfile } from "./modules/profile/handlers.js";
-import { handleGenerateMenu, handleMenuCallbacks } from "./modules/menu/handlers.js";
+import { generateMenuConversation, handleMenuCallbacks } from "./modules/menu/handlers.js";
 import { handleMyMenu } from "./modules/menu/display.js";
 import { handleShoppingList } from "./modules/shopping/handlers.js";
 
@@ -23,6 +23,7 @@ export const bot = new Bot<BotContext>(config.telegramBotToken);
 bot.use(session({ initial: () => ({}) }));
 bot.use(conversations());
 bot.use(createConversation(onboarding));
+bot.use(createConversation(generateMenuConversation));
 
 // /start command
 bot.command("start", async (ctx) => {
@@ -43,7 +44,9 @@ bot.command("start", async (ctx) => {
 });
 
 // Main menu button handlers
-bot.hears("\u{1F37D} G\u00e9n\u00e9rer menu", handleGenerateMenu);
+bot.hears("\u{1F37D} G\u00e9n\u00e9rer menu", async (ctx) => {
+  await ctx.conversation.enter("generateMenuConversation");
+});
 bot.hears("\u{1F4CB} Mon menu", handleMyMenu);
 bot.hears("\u{1F6D2} Liste de courses", handleShoppingList);
 bot.hears("\u{1F464} Mon profil", handleProfile);
