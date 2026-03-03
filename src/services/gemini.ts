@@ -124,23 +124,48 @@ function buildResponseSchema(profile: Profile) {
   return schema;
 }
 
+const MODELS = ["gemini-2.0-flash", "gemini-2.0-flash-lite"] as const;
+
+async function tryGenerate(
+  model: string,
+  prompt: string,
+  schema: Record<string, unknown>
+): Promise<string> {
+  const response = await ai.models.generateContent({
+    model,
+    contents: prompt,
+    config: {
+      systemInstruction: SYSTEM_PROMPT,
+      responseMimeType: "application/json",
+      responseSchema: schema,
+    },
+  });
+  const text = response.text;
+  if (!text) throw new Error("Empty response from Gemini");
+  return text;
+}
+
 export async function generateMenu(
   profile: Profile,
   extraInstructions?: string
 ): Promise<MenuData> {
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: buildUserPrompt(profile, extraInstructions),
-    config: {
-      systemInstruction: SYSTEM_PROMPT,
-      responseMimeType: "application/json",
-      responseSchema: buildResponseSchema(profile),
-    },
-  });
+  const prompt = buildUserPrompt(profile, extraInstructions);
+  const schema = buildResponseSchema(profile);
 
-  const text = response.text;
-  if (!text) throw new Error("Empty response from Gemini");
-  return JSON.parse(text) as MenuData;
+  for (const model of MODELS) {
+    try {
+      const text = await tryGenerate(model, prompt, schema);
+      return JSON.parse(text) as MenuData;
+    } catch (err: unknown) {
+      const status = (err as { status?: number }).status;
+      if (status === 503 || status === 429) {
+        console.warn(`${model} unavailable (${status}), trying next model...`);
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error("All Gemini models are currently unavailable. Try again later.");
 }
 
 export { buildUserPrompt, buildResponseSchema };

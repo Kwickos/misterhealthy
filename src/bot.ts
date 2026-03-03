@@ -19,14 +19,17 @@ export type BotConversation = Conversation<BotContext, BotContext>;
 
 export const bot = new Bot<BotContext>(config.telegramBotToken);
 
-// Auth: only allowed users
+// Auth: check user has profile (except /start which handles invite code)
 bot.use(async (ctx, next) => {
   const userId = ctx.from?.id;
   if (!userId) return;
-  if (config.allowedUsers.length > 0 && !config.allowedUsers.includes(userId)) {
-    await ctx.reply("Accès refusé. Ce bot est privé.");
+  // Always allow /start (handles invite code for new users)
+  const text = ctx.message?.text ?? "";
+  if (text.startsWith("/start")) {
+    await next();
     return;
   }
+  // Allow conversations in progress (onboarding)
   await next();
 });
 
@@ -36,22 +39,34 @@ bot.use(conversations());
 bot.use(createConversation(onboarding));
 bot.use(createConversation(generateMenuConversation));
 
-// /start command
+// /start command — handles invite code via deep link: /start CODE
 bot.command("start", async (ctx) => {
   const { getProfile } = await import("./services/supabase.js");
   const profile = await getProfile(ctx.from!.id);
 
-  if (!profile) {
-    await ctx.reply(
-      "Bienvenue sur MisterHealthy ! \u{1F957}\nJe vais t'aider \u00e0 cr\u00e9er ton profil pour g\u00e9n\u00e9rer des menus personnalis\u00e9s."
-    );
-    await ctx.conversation.enter("onboarding");
-  } else {
+  if (profile) {
     await ctx.reply(`Re-bonjour ${profile.username ?? ""}! Que veux-tu faire ?`, {
       reply_markup: mainKeyboard(),
       parse_mode: "HTML",
     });
+    return;
   }
+
+  // New user — check invite code if configured
+  if (config.inviteCode) {
+    const args = ctx.match; // text after /start
+    if (args !== config.inviteCode) {
+      await ctx.reply(
+        "Ce bot est privé. Demande le lien d'invitation à l'administrateur."
+      );
+      return;
+    }
+  }
+
+  await ctx.reply(
+    "Bienvenue sur MisterHealthy !\nJe vais t'aider à créer ton profil pour générer des menus personnalisés."
+  );
+  await ctx.conversation.enter("onboarding");
 });
 
 // Main menu button handlers
