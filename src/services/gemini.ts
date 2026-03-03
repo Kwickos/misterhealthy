@@ -17,7 +17,14 @@ Règles obligatoires :
 8. Si batch cooking activé : regrouper les préparations en une session (typiquement dimanche), préciser clairement quoi préparer à l'avance et comment les plats de la semaine réutilisent ces préparations
 9. Varier les saveurs et textures sur la semaine
 10. Ne générer QUE les jours et repas demandés
-11. Répondre en français`;
+11. Répondre en français
+
+Règles CRITIQUES pour les recettes (steps) :
+12. Chaque recette DOIT être autonome et complète. Ne JAMAIS présupposer qu'une préparation existe sans expliquer comment la faire.
+13. Détailler TOUTES les étapes de préparation : découpe des légumes, préparation des sauces, assaisonnement, cuisson avec températures et durées précises.
+14. Si un plat utilise une préparation batch cooking, l'étape doit dire "Reprendre la sauce bolognaise préparée dimanche" ET donner l'alternative complète si elle n'a pas été préparée.
+15. Indiquer les temps de cuisson précis (ex: "Faire revenir 5 min à feu moyen" au lieu de "Faire revenir").
+16. Chaque étape doit être une action claire et unique. Minimum 4-5 étapes par recette.`;
 
 function buildUserPrompt(profile: Profile, extraInstructions?: string): string {
   const lines = [

@@ -81,3 +81,11 @@ export async function getShoppingList(menuId: string): Promise<ShoppingItem[] | 
     .single();
   return data?.items ?? null;
 }
+
+export async function deleteMenu(menuId: string): Promise<void> {
+  const { error } = await supabase
+    .from("weekly_menus")
+    .delete()
+    .eq("id", menuId);
+  if (error) throw error;
+}

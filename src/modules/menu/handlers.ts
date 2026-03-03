@@ -1,5 +1,5 @@
 import type { BotContext, BotConversation } from "../../bot.js";
-import { getProfile, saveMenu, getLatestMenu, saveShoppingList } from "../../services/supabase.js";
+import { getProfile, saveMenu, getLatestMenu, saveShoppingList, deleteMenu } from "../../services/supabase.js";
 import { generateMenu } from "../../services/gemini.js";
 import { aggregateShoppingList } from "../../utils/shopping.js";
 import { formatMenuOverview, formatDayDetail, formatRecipe, formatIngredients } from "../../utils/format.js";
@@ -153,6 +153,26 @@ export async function handleMenuCallbacks(ctx: BotContext) {
       parse_mode: "HTML",
       reply_markup: daysKeyboard(menuData),
     });
+    return;
+  }
+
+  // menu:delete -> confirm deletion
+  if (data === "menu:delete") {
+    const confirmKb = new InlineKeyboard()
+      .text("Oui, supprimer", "menu:delete:confirm")
+      .text("Non, annuler", "back:menu");
+    await ctx.answerCallbackQuery();
+    await ctx.editMessageText("Tu es sûr de vouloir supprimer ce menu et sa liste de courses ?", {
+      reply_markup: confirmKb,
+    });
+    return;
+  }
+
+  // menu:delete:confirm -> actually delete
+  if (data === "menu:delete:confirm") {
+    await deleteMenu(menu.id);
+    await ctx.answerCallbackQuery({ text: "Menu supprimé" });
+    await ctx.editMessageText("Menu supprimé. Clique sur \"Générer menu\" pour en créer un nouveau.");
     return;
   }
 

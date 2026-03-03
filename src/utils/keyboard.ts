@@ -18,6 +18,7 @@ export function daysKeyboard(menu: MenuData): InlineKeyboard {
     kb.text(DAY_LABELS[days[i]] ?? days[i], `day:${days[i]}`);
     if ((i + 1) % 4 === 0) kb.row();
   }
+  kb.row().text("🗑 Supprimer ce menu", "menu:delete");
   return kb;
 }
 
