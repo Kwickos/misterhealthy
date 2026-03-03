@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [master, develop]
   pull_request:
-    branches: [master]
+    branches: [develop]
 
 jobs:
   test:
@@ -15,10 +15,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
       - run: npm ci
 
-      - run: npx tsc --noEmit
+      - name: Type check
+        run: npx tsc --noEmit
 
-      - run: npm test
+      - name: Tests
+        run: npm test

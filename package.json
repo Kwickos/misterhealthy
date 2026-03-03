@@ -1,10 +1,15 @@
 {
   "name": "misterhealthy",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
+  "description": "Bot Telegram de planification de repas personnalise, propulse par l'IA",
+  "main": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kwickos/misterhealthy.git"
+  },
+  "homepage": "https://github.com/Kwickos/misterhealthy#readme",
+  "bugs": {
+    "url": "https://github.com/Kwickos/misterhealthy/issues"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -12,9 +17,9 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["telegram", "bot", "meal-planning", "ai", "gemini", "grammy", "supabase", "gamification"],
+  "author": "Kwickos",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@google/genai": "^1.43.0",
