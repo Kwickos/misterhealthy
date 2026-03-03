@@ -124,25 +124,11 @@ function buildResponseSchema(profile: Profile) {
   return schema;
 }
 
-const MODELS = ["gemini-2.0-flash", "gemini-2.0-flash-lite"] as const;
+const MODEL = "gemini-2.0-flash";
+const MAX_RETRIES = 3;
 
-async function tryGenerate(
-  model: string,
-  prompt: string,
-  schema: Record<string, unknown>
-): Promise<string> {
-  const response = await ai.models.generateContent({
-    model,
-    contents: prompt,
-    config: {
-      systemInstruction: SYSTEM_PROMPT,
-      responseMimeType: "application/json",
-      responseSchema: schema,
-    },
-  });
-  const text = response.text;
-  if (!text) throw new Error("Empty response from Gemini");
-  return text;
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function generateMenu(
@@ -152,20 +138,32 @@ export async function generateMenu(
   const prompt = buildUserPrompt(profile, extraInstructions);
   const schema = buildResponseSchema(profile);
 
-  for (const model of MODELS) {
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const text = await tryGenerate(model, prompt, schema);
+      const response = await ai.models.generateContent({
+        model: MODEL,
+        contents: prompt,
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
+          responseMimeType: "application/json",
+          responseSchema: schema,
+        },
+      });
+      const text = response.text;
+      if (!text) throw new Error("Empty response from Gemini");
       return JSON.parse(text) as MenuData;
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;
-      if (status === 503 || status === 429) {
-        console.warn(`${model} unavailable (${status}), trying next model...`);
+      if ((status === 429 || status === 503) && attempt < MAX_RETRIES - 1) {
+        const delay = (attempt + 1) * 5000; // 5s, 10s, 15s
+        console.warn(`Gemini ${status}, retry ${attempt + 1}/${MAX_RETRIES} in ${delay / 1000}s...`);
+        await sleep(delay);
         continue;
       }
       throw err;
     }
   }
-  throw new Error("All Gemini models are currently unavailable. Try again later.");
+  throw new Error("Gemini unavailable after retries.");
 }
 
 export { buildUserPrompt, buildResponseSchema };
