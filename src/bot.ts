@@ -39,7 +39,7 @@ bot.use(conversations());
 bot.use(createConversation(onboarding));
 bot.use(createConversation(generateMenuConversation));
 
-// /start command — handles invite code via deep link: /start CODE
+// /start command — handles invite code via deep link or conversation
 bot.command("start", async (ctx) => {
   const { getProfile } = await import("./services/supabase.js");
   const profile = await getProfile(ctx.from!.id);
@@ -55,18 +55,40 @@ bot.command("start", async (ctx) => {
   // New user — check invite code if configured
   if (config.inviteCode) {
     const args = ctx.match; // text after /start
-    if (args !== config.inviteCode) {
+    if (args === config.inviteCode) {
       await ctx.reply(
-        "Ce bot est privé. Demande le lien d'invitation à l'administrateur."
+        "Bienvenue sur MisterHealthy !\nJe vais t'aider à créer ton profil pour générer des menus personnalisés."
       );
+      await ctx.conversation.enter("onboarding");
       return;
     }
+    // No valid code via deep link — ask for it
+    await ctx.reply("Ce bot est privé. Entre le code d'invitation :");
+    return;
   }
 
   await ctx.reply(
     "Bienvenue sur MisterHealthy !\nJe vais t'aider à créer ton profil pour générer des menus personnalisés."
   );
   await ctx.conversation.enter("onboarding");
+});
+
+// Listen for invite code typed in chat
+bot.hears(/.+/, async (ctx, next) => {
+  if (!config.inviteCode) return next();
+  const { getProfile } = await import("./services/supabase.js");
+  const profile = await getProfile(ctx.from!.id);
+  if (profile) return next();
+
+  // User has no profile — check if message is the invite code
+  if (ctx.message?.text?.trim() === config.inviteCode) {
+    await ctx.reply(
+      "Code accepté ! Bienvenue sur MisterHealthy !\nJe vais t'aider à créer ton profil."
+    );
+    await ctx.conversation.enter("onboarding");
+    return;
+  }
+  await ctx.reply("Code incorrect. Réessaie ou demande le bon code à l'administrateur.");
 });
 
 // Main menu button handlers
