@@ -44,7 +44,7 @@ bot.use(createConversation(horairesConversation));
 
 // /start command — handles invite code via deep link or conversation
 bot.command("start", async (ctx) => {
-  const { getProfile } = await import("./services/supabase.js");
+  const { getProfile } = await import("./services/database.js");
   const profile = await getProfile(ctx.from!.id);
 
   if (profile) {
@@ -79,7 +79,7 @@ bot.command("start", async (ctx) => {
 // Listen for invite code typed in chat
 bot.hears(/.+/, async (ctx, next) => {
   if (!config.inviteCode) return next();
-  const { getProfile } = await import("./services/supabase.js");
+  const { getProfile } = await import("./services/database.js");
   const profile = await getProfile(ctx.from!.id);
   if (profile) return next();
 

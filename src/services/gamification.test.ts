@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("./supabase.js", () => ({
-  supabase: {},
+vi.mock("./database.js", () => ({
   getOrCreateUserStats: vi.fn(),
   updateUserStats: vi.fn(),
   createMealValidation: vi.fn(),

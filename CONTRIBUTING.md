@@ -65,10 +65,12 @@ npm install
 
 # Configurer l'environnement
 cp .env.example .env
-# Remplir les variables dans .env
+# Remplir TELEGRAM_BOT_TOKEN et GEMINI_API_KEY dans .env
+# (pas besoin de service externe — SQLite est embarqué)
 
 # Lancer en dev (hot reload)
 npm run dev
+# La base de données SQLite est créée automatiquement dans data/
 
 # Lancer les tests
 npm test

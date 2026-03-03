@@ -1,6 +1,6 @@
 import type { Bot } from "grammy";
 import type { BotContext } from "../bot.js";
-import { getUsersWithActiveMenus, getTodayValidations, getOrCreateUserStats } from "./supabase.js";
+import { getUsersWithActiveMenus, getTodayValidations, getOrCreateUserStats } from "./database.js";
 import { InlineKeyboard } from "grammy";
 import type { MenuData, Meal } from "../types.js";
 

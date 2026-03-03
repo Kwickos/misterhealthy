@@ -1,5 +1,5 @@
 import type { BotContext } from "../../bot.js";
-import { getProfile } from "../../services/supabase.js";
+import { getProfile } from "../../services/database.js";
 import { mainKeyboard } from "../../utils/keyboard.js";
 import { InlineKeyboard } from "grammy";
 

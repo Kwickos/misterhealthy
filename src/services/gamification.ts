@@ -8,7 +8,7 @@ import {
   saveBadgeDefinition,
   getLatestMenu,
   getTodayValidations,
-} from "./supabase.js";
+} from "./database.js";
 import type { BadgeDefinition, UserStats, Meal, MenuData } from "../types.js";
 
 // Level titles

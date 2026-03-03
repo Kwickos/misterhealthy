@@ -1,5 +1,5 @@
 import type { BotContext } from "../../bot.js";
-import { getProfile, getLatestMenu } from "../../services/supabase.js";
+import { getProfile, getLatestMenu } from "../../services/database.js";
 import { formatMenuOverview } from "../../utils/format.js";
 import { daysKeyboard, mainKeyboard } from "../../utils/keyboard.js";
 import type { MenuData } from "../../types.js";
