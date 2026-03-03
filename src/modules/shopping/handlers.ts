@@ -1,5 +1,5 @@
 import type { BotContext } from "../../bot.js";
-import { getProfile, getLatestMenu, getShoppingList } from "../../services/supabase.js";
+import { getProfile, getLatestMenu, getShoppingList } from "../../services/database.js";
 import { formatShoppingList } from "../../utils/format.js";
 import { mainKeyboard } from "../../utils/keyboard.js";
 

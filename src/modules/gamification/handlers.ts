@@ -1,5 +1,5 @@
 import type { BotContext } from "../../bot.js";
-import { getProfile, getLatestMenu, getTodayValidations } from "../../services/supabase.js";
+import { getProfile, getLatestMenu, getTodayValidations } from "../../services/database.js";
 import { processValidation, getLevelTitle, xpForNextLevel, totalXpForLevel } from "../../services/gamification.js";
 import type { MenuData, Meal } from "../../types.js";
 import { InlineKeyboard } from "grammy";

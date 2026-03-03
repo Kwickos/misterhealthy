@@ -1,5 +1,5 @@
 import type { BotContext, BotConversation } from "../../bot.js";
-import { getProfile, getOrCreateUserStats, getUserBadges, getAllBadgeDefinitions, getReminderSettings, updateReminderSettings } from "../../services/supabase.js";
+import { getProfile, getOrCreateUserStats, getUserBadges, getAllBadgeDefinitions, getReminderSettings, updateReminderSettings } from "../../services/database.js";
 import { getLevelTitle, xpForNextLevel, totalXpForLevel } from "../../services/gamification.js";
 import { InlineKeyboard } from "grammy";
 

@@ -17,18 +17,19 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "keywords": ["telegram", "bot", "meal-planning", "ai", "gemini", "grammy", "supabase", "gamification"],
+  "keywords": ["telegram", "bot", "meal-planning", "ai", "gemini", "grammy", "sqlite", "gamification"],
   "author": "Kwickos",
   "license": "MIT",
   "type": "module",
   "dependencies": {
     "@google/genai": "^1.43.0",
     "@grammyjs/conversations": "^2.1.1",
-    "@supabase/supabase-js": "^2.98.0",
+    "better-sqlite3": "^11.8.1",
     "dotenv": "^17.3.1",
     "grammy": "^1.41.1"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.3.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",

@@ -1,5 +1,5 @@
 import type { BotContext, BotConversation } from "../../bot.js";
-import { getProfile, saveMenu, getLatestMenu, saveShoppingList, deleteMenu, getContextualBadgeNames } from "../../services/supabase.js";
+import { getProfile, saveMenu, getLatestMenu, saveShoppingList, deleteMenu, getContextualBadgeNames } from "../../services/database.js";
 import { generateMenu } from "../../services/gemini.js";
 import { aggregateShoppingList } from "../../utils/shopping.js";
 import { formatMenuOverview, formatDayDetail, formatRecipe, formatRecipeStep, formatIngredients, formatBatchCooking } from "../../utils/format.js";

@@ -48,7 +48,7 @@ MisterHealthy génère des menus hebdomadaires adaptés à ton profil (objectif,
 | Runtime | Node.js + TypeScript (ESM) |
 | Bot framework | grammY + @grammyjs/conversations |
 | IA | Google Gemini 3 Flash Preview (@google/genai) |
-| Base de données | Supabase (PostgreSQL) |
+| Base de données | SQLite (better-sqlite3, zero config) |
 | Dev | tsx (watch mode), Vitest |
 
 ## Structure du projet
@@ -60,7 +60,8 @@ src/
   config.ts                         # Variables d'environnement
   types.ts                          # Interfaces TypeScript
   services/
-    supabase.ts                     # CRUD Supabase
+    database.ts                     # CRUD SQLite (better-sqlite3)
+    badge-seeds.ts                  # 89 badges prédéfinis
     gemini.ts                       # Génération de menus par IA
     gamification.ts                 # Logique XP, niveaux, streaks, badges
     scheduler.ts                    # Rappels programmés
@@ -102,10 +103,11 @@ cp .env.example .env
 | Variable | Description |
 |----------|-------------|
 | `TELEGRAM_BOT_TOKEN` | Token du bot via @BotFather |
-| `SUPABASE_URL` | URL du projet Supabase |
-| `SUPABASE_ANON_KEY` | Clé anonyme Supabase |
 | `GEMINI_API_KEY` | Clé API Google AI Studio |
 | `INVITE_CODE` | Code d'invitation (optionnel, vide = accès libre) |
+| `DATABASE_PATH` | Chemin vers la DB SQLite (par défaut : `./data/misterhealthy.db`) |
+
+> **Aucun service externe requis** pour la base de données : SQLite est embarqué, le fichier DB est créé automatiquement au premier lancement.
 
 ## Lancement
 

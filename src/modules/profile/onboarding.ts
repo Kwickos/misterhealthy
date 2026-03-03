@@ -1,5 +1,5 @@
 import type { BotConversation, BotContext } from "../../bot.js";
-import { upsertProfile } from "../../services/supabase.js";
+import { upsertProfile } from "../../services/database.js";
 import { mainKeyboard } from "../../utils/keyboard.js";
 import {
   onboardingGoalKeyboard,
