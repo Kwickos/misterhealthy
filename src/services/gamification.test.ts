@@ -1,4 +1,20 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock("./supabase.js", () => ({
+  supabase: {},
+  getOrCreateUserStats: vi.fn(),
+  updateUserStats: vi.fn(),
+  createMealValidation: vi.fn(),
+  awardBadge: vi.fn(),
+  getAllBadgeDefinitions: vi.fn(),
+  getBadgeByName: vi.fn(),
+  saveBadgeDefinition: vi.fn(),
+  getLatestMenu: vi.fn(),
+  getTodayValidations: vi.fn(),
+  getUserBadges: vi.fn(),
+  getContextualBadgeNames: vi.fn(),
+}));
+
 import {
   getLevelTitle,
   xpForNextLevel,
