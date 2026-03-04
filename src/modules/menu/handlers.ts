@@ -7,7 +7,7 @@ import { formatMenuOverview, formatDayDetail, formatRecipe, formatRecipeStep, fo
 import { daysKeyboard, dayMealsKeyboard, recipeBackKeyboard, recipeStepKeyboard, mainKeyboard, onboardingDaysKeyboard, onboardingMealsKeyboard, onboardingServingsKeyboard } from "../../utils/keyboard.js";
 import type { MenuData, DayMenu, Meal } from "../../types.js";
 import { InlineKeyboard } from "grammy";
-import { t, DEFAULT_LOCALE, type Locale } from "../../i18n/index.js";
+import { t, mealLabel, dayLabel, DEFAULT_LOCALE, type Locale } from "../../i18n/index.js";
 
 function getWeekStart(): string {
   const now = new Date();
@@ -46,10 +46,10 @@ export async function generateMenuConversation(conversation: BotConversation, ct
     const day = data.replace("onb_day:", "");
     if (selectedDays.includes(day)) {
       selectedDays.splice(selectedDays.indexOf(day), 1);
-      await dayCtx.answerCallbackQuery({ text: t(locale, "menu.day_removed", { day }) });
+      await dayCtx.answerCallbackQuery({ text: t(locale, "menu.day_removed", { day: dayLabel(locale, day) }) });
     } else {
       selectedDays.push(day);
-      await dayCtx.answerCallbackQuery({ text: t(locale, "menu.day_added", { day }) });
+      await dayCtx.answerCallbackQuery({ text: t(locale, "menu.day_added", { day: dayLabel(locale, day) }) });
     }
   }
 
@@ -77,10 +77,10 @@ export async function generateMenuConversation(conversation: BotConversation, ct
     const meal = data.replace("meal:", "");
     if (selectedMeals.includes(meal)) {
       selectedMeals.splice(selectedMeals.indexOf(meal), 1);
-      await mealCtx.answerCallbackQuery({ text: t(locale, "menu.meal_removed", { meal }) });
+      await mealCtx.answerCallbackQuery({ text: t(locale, "menu.meal_removed", { meal: mealLabel(locale, meal) }) });
     } else {
       selectedMeals.push(meal);
-      await mealCtx.answerCallbackQuery({ text: t(locale, "menu.meal_added", { meal }) });
+      await mealCtx.answerCallbackQuery({ text: t(locale, "menu.meal_added", { meal: mealLabel(locale, meal) }) });
     }
   }
 
