@@ -1,29 +1,29 @@
-# Code de conduite
+# Code of Conduct
 
-## Notre engagement
+## Our pledge
 
-Nous nous engageons a faire de la participation a ce projet une experience sans harcelement pour tout le monde, quel que soit l'age, la taille, le handicap, l'ethnicite, l'identite et l'expression de genre, le niveau d'experience, la nationalite, l'apparence, la race, la religion ou l'orientation sexuelle.
+We are committed to making participation in this project a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, appearance, race, religion, or sexual orientation.
 
-## Nos standards
+## Our standards
 
-Exemples de comportements qui contribuent a creer un environnement positif :
+Examples of behavior that contributes to creating a positive environment:
 
-- Utiliser un langage accueillant et inclusif
-- Respecter les points de vue et experiences differents
-- Accepter les critiques constructives avec grace
-- Se concentrer sur ce qui est le mieux pour la communaute
+- Using welcoming and inclusive language
+- Being respectful of differing viewpoints and experiences
+- Gracefully accepting constructive criticism
+- Focusing on what is best for the community
 
-Exemples de comportements inacceptables :
+Examples of unacceptable behavior:
 
-- Langage ou imagerie a caractere sexuel
-- Trolling, commentaires insultants ou desobligeants
-- Harcelement public ou prive
-- Publier les informations privees d'autrui sans permission
+- Sexualized language or imagery
+- Trolling, insulting or derogatory comments
+- Public or private harassment
+- Publishing others' private information without permission
 
-## Application
+## Enforcement
 
-Les cas de comportement abusif peuvent etre signales en ouvrant une issue ou en contactant les mainteneurs du projet. Toutes les plaintes seront examinees et investiguees.
+Instances of abusive behavior may be reported by opening an issue or contacting the project maintainers. All complaints will be reviewed and investigated.
 
 ## Attribution
 
-Ce code de conduite est adapte du [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1.
+This code of conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1.

@@ -13,6 +13,7 @@ export interface Profile {
   dietary_restrictions: string[];
   kitchen_equipment: string[];
   extra_preferences: string | null;
+  language: string;
   created_at: string;
   updated_at: string;
 }

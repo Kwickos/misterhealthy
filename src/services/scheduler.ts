@@ -3,13 +3,7 @@ import type { BotContext } from "../bot.js";
 import { getUsersWithActiveMenus, getTodayValidations, getOrCreateUserStats } from "./database.js";
 import { InlineKeyboard } from "grammy";
 import type { MenuData, Meal } from "../types.js";
-
-const MEAL_LABELS: Record<string, string> = {
-  petit_dej: "🌅 Petit-déj",
-  dejeuner: "🍽 Déjeuner",
-  collation: "🍰 Collation",
-  diner: "🌙 Dîner",
-};
+import { t, mealLabel, type Locale, DEFAULT_LOCALE } from "../i18n/index.js";
 
 const MEAL_TO_REMINDER_COL: Record<string, string> = {
   petit_dej: "petit_dej",
@@ -64,6 +58,7 @@ export function startScheduler(bot: Bot<BotContext>): void {
       const users = await getUsersWithActiveMenus();
 
       for (const { profile, menu, reminders } of users) {
+        const locale = (profile.language as Locale) ?? DEFAULT_LOCALE;
         const menuData = menu.menu_data as MenuData;
         const dayMenu = menuData.days?.[dayKey];
 
@@ -78,7 +73,7 @@ export function startScheduler(bot: Bot<BotContext>): void {
           // Check if meal is already validated today
           const validations = await getTodayValidations(profile.id);
           const alreadyValidated = validations.some(
-            (v) => v.day_key === dayKey && v.meal_key === mealKey
+            (v) => v.day_key === dayKey && v.meal_key === mealKey,
           );
           if (alreadyValidated) {
             sentReminders.add(key);
@@ -89,15 +84,12 @@ export function startScheduler(bot: Bot<BotContext>): void {
           const meal = dayMenu?.[mealKey as keyof typeof dayMenu] as Meal | undefined;
           if (!meal) continue;
 
-          const label = MEAL_LABELS[mealKey] ?? mealKey;
-          const text =
-            `${label} – C'est l'heure !\n\n` +
-            `🍴 *${meal.name}*\n\n` +
-            `As-tu suivi ton repas prévu ?`;
+          const label = mealLabel(locale, mealKey);
+          const text = t(locale, "scheduler.meal_time", { label, name: meal.name });
 
           const keyboard = new InlineKeyboard()
-            .text("✅ Oui", `validate:yes:${dayKey}:${mealKey}`)
-            .text("❌ Pas aujourd'hui", `validate:no:${dayKey}:${mealKey}`);
+            .text(t(locale, "kb.yes"), `validate:yes:${dayKey}:${mealKey}`)
+            .text(t(locale, "kb.no_today"), `validate:no:${dayKey}:${mealKey}`);
 
           try {
             await bot.api.sendMessage(profile.telegram_id, text, {
@@ -119,13 +111,11 @@ export function startScheduler(bot: Bot<BotContext>): void {
           if (validations.length === 0) {
             const stats = await getOrCreateUserStats(profile.id);
             if (stats.current_streak > 0) {
-              const text =
-                `🔥 Attention ! Ta streak de *${stats.current_streak} jour(s)* est en danger !\n\n` +
-                `Tu n'as validé aucun repas aujourd'hui. Ne laisse pas ta série s'arrêter !`;
+              const text = t(locale, "scheduler.streak_danger", { streak: stats.current_streak });
 
               const keyboard = new InlineKeyboard().text(
-                "📋 Voir mes repas du jour",
-                "validate:today_meals"
+                t(locale, "kb.see_today_meals"),
+                "validate:today_meals",
               );
 
               try {

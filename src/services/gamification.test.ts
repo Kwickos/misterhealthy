@@ -45,25 +45,31 @@ function makeStats(overrides: Partial<UserStats> = {}): UserStats {
 
 describe("getLevelTitle", () => {
   it("returns 'Débutant' for level 1", () => {
-    expect(getLevelTitle(1)).toBe("Débutant");
+    expect(getLevelTitle("fr", 1)).toBe("Débutant");
   });
 
   it("returns 'Marmiton' for level 2", () => {
-    expect(getLevelTitle(2)).toBe("Marmiton");
+    expect(getLevelTitle("fr", 2)).toBe("Marmiton");
   });
 
   it("returns 'Chef étoilé' for level 16", () => {
-    expect(getLevelTitle(16)).toBe("Chef étoilé");
+    expect(getLevelTitle("fr", 16)).toBe("Chef étoilé");
   });
 
   it("returns 'Gordon Ramsay' for level 20", () => {
-    expect(getLevelTitle(20)).toBe("Gordon Ramsay");
+    expect(getLevelTitle("fr", 20)).toBe("Gordon Ramsay");
   });
 
   it("returns 'Gordon Ramsay' for levels above 20", () => {
-    expect(getLevelTitle(21)).toBe("Gordon Ramsay");
-    expect(getLevelTitle(50)).toBe("Gordon Ramsay");
-    expect(getLevelTitle(100)).toBe("Gordon Ramsay");
+    expect(getLevelTitle("fr", 21)).toBe("Gordon Ramsay");
+    expect(getLevelTitle("fr", 50)).toBe("Gordon Ramsay");
+    expect(getLevelTitle("fr", 100)).toBe("Gordon Ramsay");
+  });
+
+  it("returns English titles for en locale", () => {
+    expect(getLevelTitle("en", 1)).toBe("Beginner");
+    expect(getLevelTitle("en", 12)).toBe("Chef");
+    expect(getLevelTitle("en", 20)).toBe("Gordon Ramsay");
   });
 
   it("returns correct titles for all defined levels", () => {
@@ -90,7 +96,7 @@ describe("getLevelTitle", () => {
       20: "Gordon Ramsay",
     };
     for (const [level, title] of Object.entries(expected)) {
-      expect(getLevelTitle(Number(level))).toBe(title);
+      expect(getLevelTitle("fr", Number(level))).toBe(title);
     }
   });
 });
@@ -180,35 +186,28 @@ describe("calculateXP", () => {
 
 describe("checkLevelUp", () => {
   it("returns null when not enough XP to level up", () => {
-    // Level 1 needs 50 XP to level up. totalXpForLevel(1) = 0, needed = 50
-    // So need currentXP >= 0 + 50 = 50
     expect(checkLevelUp(49, 1)).toBeNull();
   });
 
   it("returns null when XP is just below threshold", () => {
-    // Level 2: totalXpForLevel(2) = 50, xpForNextLevel(2) = 100
-    // Need currentXP >= 50 + 100 = 150
     expect(checkLevelUp(149, 2)).toBeNull();
   });
 
   it("returns new level and title when XP is exactly at threshold", () => {
-    // Level 1 -> 2: need 50 XP
     const result = checkLevelUp(50, 1);
     expect(result).not.toBeNull();
     expect(result!.newLevel).toBe(2);
-    expect(result!.title).toBe("Marmiton");
+    expect(result!.title).toBe("Kitchen helper");
   });
 
   it("returns new level and title when XP exceeds threshold", () => {
     const result = checkLevelUp(200, 1);
     expect(result).not.toBeNull();
     expect(result!.newLevel).toBe(2);
-    expect(result!.title).toBe("Marmiton");
+    expect(result!.title).toBe("Kitchen helper");
   });
 
   it("levels up from level 2 to level 3 correctly", () => {
-    // Level 2: totalXpForLevel(2) = 50, xpForNextLevel(2) = 100
-    // Need >= 150
     const result = checkLevelUp(150, 2);
     expect(result).not.toBeNull();
     expect(result!.newLevel).toBe(3);
@@ -216,7 +215,6 @@ describe("checkLevelUp", () => {
   });
 
   it("levels up to Gordon Ramsay at level 20", () => {
-    // Level 19 -> 20: totalXpForLevel(19) + xpForNextLevel(19)
     const threshold = totalXpForLevel(19) + xpForNextLevel(19);
     const result = checkLevelUp(threshold, 19);
     expect(result).not.toBeNull();

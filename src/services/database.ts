@@ -119,6 +119,14 @@ db.exec(`
   );
 `);
 
+// ── Migrations ──────────────────────────────────────────────────────
+
+try {
+  db.exec("ALTER TABLE profiles ADD COLUMN language TEXT NOT NULL DEFAULT 'fr'");
+} catch {
+  // Column already exists
+}
+
 // ── Seed badges ─────────────────────────────────────────────────────
 
 const insertBadge = db.prepare(`
@@ -419,7 +427,7 @@ export async function getUsersWithActiveMenus(): Promise<
       `SELECT m.*, p.id AS p_id, p.telegram_id, p.username, p.weight, p.height, p.age,
               p.goal, p.meals_config, p.menu_days, p.servings, p.batch_cooking,
               p.dietary_restrictions, p.kitchen_equipment, p.extra_preferences,
-              p.created_at AS p_created_at, p.updated_at AS p_updated_at
+              p.language, p.created_at AS p_created_at, p.updated_at AS p_updated_at
        FROM weekly_menus m
        JOIN profiles p ON m.profile_id = p.id
        WHERE m.week_start <= ?`
@@ -444,6 +452,7 @@ export async function getUsersWithActiveMenus(): Promise<
       dietary_restrictions: row.dietary_restrictions,
       kitchen_equipment: row.kitchen_equipment,
       extra_preferences: row.extra_preferences,
+      language: row.language,
       created_at: row.p_created_at,
       updated_at: row.p_updated_at,
     });

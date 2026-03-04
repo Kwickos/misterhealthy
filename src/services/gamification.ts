@@ -10,33 +10,11 @@ import {
   getTodayValidations,
 } from "./database.js";
 import type { BadgeDefinition, UserStats, Meal, MenuData } from "../types.js";
+import { t, DEFAULT_LOCALE, type Locale } from "../i18n/index.js";
 
-// Level titles
-const LEVEL_TITLES: Record<number, string> = {
-  1: "Débutant",
-  2: "Marmiton",
-  3: "Commis",
-  4: "Commis confirmé",
-  5: "Cuistot",
-  6: "Cuistot confirmé",
-  7: "Cuistot expérimenté",
-  8: "Sous-chef",
-  9: "Sous-chef confirmé",
-  10: "Sous-chef expérimenté",
-  11: "Demi-chef",
-  12: "Chef",
-  13: "Chef confirmé",
-  14: "Chef expérimenté",
-  15: "Chef exécutif",
-  16: "Chef étoilé",
-  17: "Chef 2 étoiles",
-  18: "Chef 3 étoiles",
-  19: "Meilleur Ouvrier",
-  20: "Gordon Ramsay",
-};
-
-export function getLevelTitle(level: number): string {
-  return LEVEL_TITLES[level] ?? LEVEL_TITLES[20]!;
+export function getLevelTitle(locale: Locale, level: number): string {
+  const key = `level.${Math.min(level, 20)}` as import("../i18n/index.js").TranslationKey;
+  return t(locale, key);
 }
 
 // XP needed for next level: level * 50
@@ -71,11 +49,11 @@ export function calculateXP(hasPhoto: boolean, isFullDay: boolean): number {
 }
 
 // Check if level up happened, returns new level or null
-export function checkLevelUp(currentXP: number, currentLevel: number): { newLevel: number; title: string } | null {
+export function checkLevelUp(currentXP: number, currentLevel: number, locale: Locale = DEFAULT_LOCALE): { newLevel: number; title: string } | null {
   const needed = xpForNextLevel(currentLevel);
   if (currentXP >= totalXpForLevel(currentLevel) + needed) {
     const newLevel = currentLevel + 1;
-    return { newLevel, title: getLevelTitle(newLevel) };
+    return { newLevel, title: getLevelTitle(locale, newLevel) };
   }
   return null;
 }
@@ -131,11 +109,8 @@ export async function checkFixedBadges(stats: UserStats): Promise<BadgeDefinitio
         currentValue = stats.perfect_weeks;
         break;
       case "petit_dej":
-        // We need to track this separately - for now use a rough check
-        // This will be passed in from the caller
         break;
       case "menus_generated":
-        // This is checked at menu generation time, not here
         break;
     }
 

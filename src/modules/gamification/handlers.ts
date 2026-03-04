@@ -1,15 +1,10 @@
 import type { BotContext } from "../../bot.js";
+import { getLocale } from "../../bot.js";
 import { getProfile, getLatestMenu, getTodayValidations } from "../../services/database.js";
-import { processValidation, getLevelTitle, xpForNextLevel, totalXpForLevel } from "../../services/gamification.js";
+import { processValidation } from "../../services/gamification.js";
 import type { MenuData, Meal } from "../../types.js";
 import { InlineKeyboard } from "grammy";
-
-const MEAL_LABELS: Record<string, string> = {
-  petit_dej: "🌅 Petit-déj",
-  dejeuner: "🍽 Déjeuner",
-  collation: "🍰 Collation",
-  diner: "🌙 Dîner",
-};
+import { t, mealLabel, badgeName, badgeDesc, DEFAULT_LOCALE, type Locale } from "../../i18n/index.js";
 
 const DAY_NAMES = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 
@@ -23,9 +18,10 @@ export async function handleValidationCallbacks(ctx: BotContext) {
   const profile = await getProfile(ctx.from!.id);
   if (!profile) return false;
 
+  const locale = getLocale(profile);
   const menu = await getLatestMenu(profile.id);
   if (!menu) {
-    await ctx.answerCallbackQuery({ text: "Aucun menu trouvé" });
+    await ctx.answerCallbackQuery({ text: t(locale, "menu.not_found") });
     return true;
   }
 
@@ -38,8 +34,8 @@ export async function handleValidationCallbacks(ctx: BotContext) {
 
     // Ask for photo
     const kb = new InlineKeyboard()
-      .text("⏭ Passer", `validate:skip_photo:${dayKey}:${mealKey}`);
-    await ctx.editMessageText("📸 Envoie une photo de ton plat pour +5 XP bonus !\n(ou clique Passer)", {
+      .text(t(locale, "kb.skip"), `validate:skip_photo:${dayKey}:${mealKey}`);
+    await ctx.editMessageText(t(locale, "gamification.photo_prompt"), {
       reply_markup: kb,
     });
 
@@ -62,12 +58,12 @@ export async function handleValidationCallbacks(ctx: BotContext) {
 
     const meal = (menuData.days[dayKey] as Record<string, Meal>)?.[mealKey];
     if (!meal) {
-      await ctx.editMessageText("Repas non trouvé.");
+      await ctx.editMessageText(t(locale, "gamification.meal_not_found"));
       return true;
     }
 
     const result = await processValidation(profile.id, menu.id, dayKey, mealKey, meal);
-    await ctx.editMessageText(formatValidationResult(result, false));
+    await ctx.editMessageText(formatValidationResult(locale, result, false));
 
     return true;
   }
@@ -75,7 +71,7 @@ export async function handleValidationCallbacks(ctx: BotContext) {
   // validate:no:dayKey:mealKey
   if (data.startsWith("validate:no:")) {
     await ctx.answerCallbackQuery();
-    await ctx.editMessageText("Pas de souci, à la prochaine ! 💪");
+    await ctx.editMessageText(t(locale, "gamification.no_worries"));
     return true;
   }
 
@@ -87,7 +83,7 @@ export async function handleValidationCallbacks(ctx: BotContext) {
     const dayMenu = menuData.days[todayKey];
 
     if (!dayMenu) {
-      await ctx.editMessageText("Pas de menu prévu aujourd'hui.");
+      await ctx.editMessageText(t(locale, "gamification.no_menu_today"));
       return true;
     }
 
@@ -96,7 +92,7 @@ export async function handleValidationCallbacks(ctx: BotContext) {
 
     const kb = new InlineKeyboard();
     for (const mealKey of Object.keys(dayMenu)) {
-      const label = MEAL_LABELS[mealKey] ?? mealKey;
+      const label = mealLabel(locale, mealKey);
       if (validatedKeys.has(mealKey)) {
         kb.text(`✅ ${label}`, "noop");
       } else {
@@ -105,7 +101,7 @@ export async function handleValidationCallbacks(ctx: BotContext) {
       kb.row();
     }
 
-    await ctx.editMessageText("📋 Tes repas d'aujourd'hui :", { reply_markup: kb });
+    await ctx.editMessageText(t(locale, "gamification.today_meals"), { reply_markup: kb });
     return true;
   }
 
@@ -128,6 +124,9 @@ export async function handlePhotoMessage(ctx: BotContext): Promise<boolean> {
   // Get the largest photo
   const fileId = photo[photo.length - 1].file_id;
 
+  const profile = await getProfile(telegramId);
+  const locale = getLocale(profile);
+
   const menu = await getLatestMenu(pending.userId);
   if (!menu) return false;
 
@@ -136,34 +135,34 @@ export async function handlePhotoMessage(ctx: BotContext): Promise<boolean> {
   if (!meal) return false;
 
   const result = await processValidation(pending.userId, pending.menuId, pending.dayKey, pending.mealKey, meal, fileId);
-  await ctx.reply(formatValidationResult(result, true));
+  await ctx.reply(formatValidationResult(locale, result, true));
 
   return true;
 }
 
-function formatValidationResult(result: import("../../services/gamification.js").ValidationResult, hasPhoto: boolean): string {
+function formatValidationResult(locale: Locale, result: import("../../services/gamification.js").ValidationResult, hasPhoto: boolean): string {
   const lines: string[] = [];
 
   if (hasPhoto) {
-    lines.push("📸 Belle assiette !");
+    lines.push(t(locale, "gamification.nice_plate"));
   }
 
-  const photoText = hasPhoto ? " (10 + 5 photo)" : "";
-  lines.push(`+${result.xpEarned} XP${photoText} — Streak ${result.streak} jours 🔥`);
+  const photoText = hasPhoto ? t(locale, "gamification.photo_text_bonus") : "";
+  lines.push(t(locale, "gamification.xp_earned", { xp: result.xpEarned, photoText, streak: result.streak }));
 
   if (result.streakBonus > 0) {
-    lines.push(`🎁 Bonus streak : +${result.streakBonus} XP`);
+    lines.push(t(locale, "gamification.streak_bonus", { bonus: result.streakBonus }));
   }
 
   if (result.levelUp) {
     lines.push("");
-    lines.push(`🎉 NIVEAU ${result.levelUp.newLevel} — ${result.levelUp.title} !`);
+    lines.push(t(locale, "gamification.level_up", { level: result.levelUp.newLevel, title: result.levelUp.title }));
   }
 
   for (const badge of result.newBadges) {
     lines.push("");
-    lines.push(`🏅 Nouveau badge : "${badge.emoji} ${badge.name}"`);
-    lines.push(badge.description);
+    lines.push(t(locale, "gamification.new_badge", { emoji: badge.emoji, name: badgeName(locale, badge.name) }));
+    lines.push(badgeDesc(locale, badge.description));
   }
 
   return lines.join("\n");

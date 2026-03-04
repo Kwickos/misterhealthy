@@ -1,19 +1,19 @@
-# Politique de securite
+# Security Policy
 
-## Signaler une vulnerabilite
+## Reporting a vulnerability
 
-Si tu decouvres une faille de securite, **ne cree pas d'issue publique**.
+If you discover a security vulnerability, **do not create a public issue**.
 
-Contacte les mainteneurs directement en envoyant un email ou un message prive avec :
+Contact the maintainers directly by sending an email or private message with:
 
-1. Description de la vulnerabilite
-2. Etapes pour la reproduire
-3. Impact potentiel
+1. Description of the vulnerability
+2. Steps to reproduce
+3. Potential impact
 
-Nous nous engageons a repondre sous 48h et a corriger les vulnerabilites critiques en priorite.
+We commit to responding within 48 hours and prioritizing critical vulnerability fixes.
 
-## Bonnes pratiques
+## Best practices
 
-- Ne commit jamais de secrets (`.env`, cles API, tokens)
-- Utilise toujours les variables d'environnement pour les donnees sensibles
-- Verifie que `.env` est bien dans `.gitignore` avant de push
+- Never commit secrets (`.env`, API keys, tokens)
+- Always use environment variables for sensitive data
+- Make sure `.env` is in `.gitignore` before pushing

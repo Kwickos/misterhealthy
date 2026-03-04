@@ -1,7 +1,7 @@
 {
   "name": "misterhealthy",
   "version": "1.0.0",
-  "description": "Bot Telegram de planification de repas personnalise, propulse par l'IA",
+  "description": "AI-powered Telegram bot for personalized meal planning",
   "main": "src/index.ts",
   "repository": {
     "type": "git",
