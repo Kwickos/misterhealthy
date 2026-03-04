@@ -37,6 +37,12 @@ MisterHealthy génère des menus hebdomadaires adaptés à ton profil (objectif,
 - Rappels automatiques à l'heure de chaque repas
 - L'IA peut inventer de nouveaux badges uniques
 
+**Multi-langue (i18n)**
+- Français et anglais supportés
+- Sélection de la langue à l'inscription
+- Commande `/language` pour changer à tout moment
+- Les menus générés par l'IA s'adaptent à la langue choisie
+
 **Sécurité**
 - Accès privé par code d'invitation
 - Deep link Telegram (`t.me/BOT?start=CODE`) ou saisie dans le chat
@@ -59,6 +65,11 @@ src/
   bot.ts                            # Configuration du bot, middleware, routing
   config.ts                         # Variables d'environnement
   types.ts                          # Interfaces TypeScript
+  i18n/
+    index.ts                        # Fonction t(), hearsKey(), types Locale
+    locales/
+      fr.ts                         # Traductions françaises
+      en.ts                         # Traductions anglaises
   services/
     database.ts                     # CRUD SQLite (better-sqlite3)
     badge-seeds.ts                  # 89 badges prédéfinis
@@ -67,7 +78,7 @@ src/
     scheduler.ts                    # Rappels programmés
   modules/
     profile/
-      onboarding.ts                 # Conversation d'inscription
+      onboarding.ts                 # Conversation d'inscription (+ sélection langue)
       handlers.ts                   # Affichage profil
     menu/
       handlers.ts                   # Génération et navigation menu
@@ -130,6 +141,7 @@ npm test
 | `/stats` | Voir ses statistiques et progression |
 | `/badges` | Voir sa collection de badges |
 | `/horaires` | Modifier les heures de rappel |
+| `/language` | Changer la langue (FR/EN) |
 | `/cancel` | Annuler une conversation en cours |
 
 ## Clavier principal
@@ -156,6 +168,7 @@ npm test
 - [x] Gamification (XP, niveaux, streaks, badges)
 - [x] Rappels automatiques
 - [x] Badges contextuels par IA
+- [x] Multi-langue (FR/EN)
 - [ ] Photo "Qu'est-ce que je fais avec ça ?" (Gemini Vision analyse le frigo et propose des recettes)
 - [ ] Historique des menus passés
 - [ ] Partage de recettes favorites entre utilisateurs

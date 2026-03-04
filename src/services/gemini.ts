@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { config } from "../config.js";
 import type { Profile, MenuData } from "../types.js";
+import { t, DEFAULT_LOCALE, type Locale } from "../i18n/index.js";
 
 const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
 
@@ -17,7 +18,7 @@ Règles obligatoires :
 8. Si batch cooking activé : regrouper les préparations en une session (typiquement dimanche), préciser clairement quoi préparer à l'avance et comment les plats de la semaine réutilisent ces préparations
 9. Varier les saveurs et textures sur la semaine
 10. Ne générer QUE les jours et repas demandés
-11. Répondre en français
+11. {respondIn}
 
 Règles CRITIQUES pour les recettes (steps) :
 12. Chaque recette DOIT être autonome et complète. Ne JAMAIS présupposer qu'une préparation existe sans expliquer comment la faire.
@@ -141,10 +142,13 @@ function sleep(ms: number): Promise<void> {
 export async function generateMenu(
   profile: Profile,
   extraInstructions?: string,
-  existingBadgeNames?: string[]
+  existingBadgeNames?: string[],
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<MenuData> {
   const prompt = buildUserPrompt(profile, extraInstructions, existingBadgeNames);
   const schema = buildResponseSchema(profile);
+  const respondIn = t(locale, "gemini.respond_in");
+  const systemPrompt = SYSTEM_PROMPT.replace("{respondIn}", respondIn);
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
@@ -152,7 +156,7 @@ export async function generateMenu(
         model: MODEL,
         contents: prompt,
         config: {
-          systemInstruction: SYSTEM_PROMPT,
+          systemInstruction: systemPrompt,
           responseMimeType: "application/json",
           responseSchema: schema,
         },

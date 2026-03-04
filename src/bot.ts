@@ -6,7 +6,7 @@ import {
   createConversation,
 } from "@grammyjs/conversations";
 import { config } from "./config.js";
-import { mainKeyboard } from "./utils/keyboard.js";
+import { mainKeyboard, languageKeyboard } from "./utils/keyboard.js";
 import { onboarding } from "./modules/profile/onboarding.js";
 import { handleProfile } from "./modules/profile/handlers.js";
 import { generateMenuConversation, handleMenuCallbacks } from "./modules/menu/handlers.js";
@@ -14,10 +14,15 @@ import { handleMyMenu } from "./modules/menu/display.js";
 import { handleShoppingList } from "./modules/shopping/handlers.js";
 import { handleValidationCallbacks, handlePhotoMessage } from "./modules/gamification/handlers.js";
 import { handleStats, handleBadgesCallback, handleStatsHistoryCallback, handleStatsBackCallback, horairesConversation } from "./modules/gamification/stats.js";
+import { t, hearsKey, DEFAULT_LOCALE, type Locale } from "./i18n/index.js";
 
 type SessionData = Record<string, never>;
 export type BotContext = ConversationFlavor<Context & SessionFlavor<SessionData>>;
 export type BotConversation = Conversation<BotContext, BotContext>;
+
+export function getLocale(profile: { language?: string } | null): Locale {
+  return (profile?.language as Locale) ?? DEFAULT_LOCALE;
+}
 
 export const bot = new Bot<BotContext>(config.telegramBotToken);
 
@@ -48,8 +53,9 @@ bot.command("start", async (ctx) => {
   const profile = await getProfile(ctx.from!.id);
 
   if (profile) {
-    await ctx.reply(`Re-bonjour ${profile.username ?? ""}! Que veux-tu faire ?`, {
-      reply_markup: mainKeyboard(),
+    const locale = getLocale(profile);
+    await ctx.reply(t(locale, "bot.welcome_back", { name: profile.username ?? "" }), {
+      reply_markup: mainKeyboard(locale),
       parse_mode: "HTML",
     });
     return;
@@ -59,20 +65,16 @@ bot.command("start", async (ctx) => {
   if (config.inviteCode) {
     const args = ctx.match; // text after /start
     if (args === config.inviteCode) {
-      await ctx.reply(
-        "Bienvenue sur MisterHealthy !\nJe vais t'aider à créer ton profil pour générer des menus personnalisés."
-      );
+      await ctx.reply(t(DEFAULT_LOCALE, "bot.welcome_new"));
       await ctx.conversation.enter("onboarding");
       return;
     }
     // No valid code via deep link — ask for it
-    await ctx.reply("Ce bot est privé. Entre le code d'invitation :");
+    await ctx.reply(t(DEFAULT_LOCALE, "bot.invite_required"));
     return;
   }
 
-  await ctx.reply(
-    "Bienvenue sur MisterHealthy !\nJe vais t'aider à créer ton profil pour générer des menus personnalisés."
-  );
+  await ctx.reply(t(DEFAULT_LOCALE, "bot.welcome_new"));
   await ctx.conversation.enter("onboarding");
 });
 
@@ -85,13 +87,11 @@ bot.hears(/.+/, async (ctx, next) => {
 
   // User has no profile — check if message is the invite code
   if (ctx.message?.text?.trim() === config.inviteCode) {
-    await ctx.reply(
-      "Code accepté ! Bienvenue sur MisterHealthy !\nJe vais t'aider à créer ton profil."
-    );
+    await ctx.reply(t(DEFAULT_LOCALE, "bot.invite_accepted"));
     await ctx.conversation.enter("onboarding");
     return;
   }
-  await ctx.reply("Code incorrect. Réessaie ou demande le bon code à l'administrateur.");
+  await ctx.reply(t(DEFAULT_LOCALE, "bot.invite_incorrect"));
 });
 
 // Commands
@@ -103,15 +103,20 @@ bot.command("badges", async (ctx) => {
 bot.command("horaires", async (ctx) => {
   await ctx.conversation.enter("horairesConversation");
 });
+bot.command("language", async (ctx) => {
+  await ctx.reply("🌐 Choose your language / Choisis ta langue :", {
+    reply_markup: languageKeyboard(),
+  });
+});
 
 // Main menu button handlers
-bot.hears("\u{1F37D} G\u00e9n\u00e9rer menu", async (ctx) => {
+bot.hears(hearsKey("kb.generate_menu"), async (ctx) => {
   await ctx.conversation.enter("generateMenuConversation");
 });
-bot.hears("\u{1F4CB} Mon menu", handleMyMenu);
-bot.hears("\u{1F6D2} Liste de courses", handleShoppingList);
-bot.hears("\u{1F4CA} Mes stats", handleStats);
-bot.hears("\u{1F464} Mon profil", handleProfile);
+bot.hears(hearsKey("kb.my_menu"), handleMyMenu);
+bot.hears(hearsKey("kb.shopping_list"), handleShoppingList);
+bot.hears(hearsKey("kb.my_stats"), handleStats);
+bot.hears(hearsKey("kb.my_profile"), handleProfile);
 
 // Photo handler (for meal validation photos)
 bot.on("message:photo", async (ctx, next) => {
@@ -123,6 +128,16 @@ bot.on("message:photo", async (ctx, next) => {
 bot.on("callback_query:data", async (ctx) => {
   const data = ctx.callbackQuery?.data;
   if (!data) return;
+
+  // Language selection
+  if (data.startsWith("lang:") || data.startsWith("setlang:")) {
+    const newLang = data.replace("lang:", "").replace("setlang:", "") as Locale;
+    const { upsertProfile } = await import("./services/database.js");
+    await upsertProfile(ctx.from!.id, { language: newLang });
+    await ctx.answerCallbackQuery();
+    await ctx.editMessageText(t(newLang, "language.changed"));
+    return;
+  }
 
   // Gamification callbacks
   if (data.startsWith("validate:")) {

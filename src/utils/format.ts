@@ -1,30 +1,22 @@
 import type { MenuData, DayMenu, Meal, ShoppingItem } from "../types.js";
+import { t, mealLabel, dayLabel, type Locale } from "../i18n/index.js";
 
-const MEAL_LABELS: Record<string, string> = {
-  petit_dej: "🌅 Petit-déj",
-  dejeuner: "🍽 Déjeuner",
-  collation: "🍰 Collation",
-  diner: "🌙 Dîner",
-};
+export function getMealLabel(locale: Locale, key: string): string {
+  return mealLabel(locale, key);
+}
 
-const DAY_LABELS: Record<string, string> = {
-  lundi: "Lundi",
-  mardi: "Mardi",
-  mercredi: "Mercredi",
-  jeudi: "Jeudi",
-  vendredi: "Vendredi",
-  samedi: "Samedi",
-  dimanche: "Dimanche",
-};
+export function getDayLabel(locale: Locale, key: string): string {
+  return dayLabel(locale, key);
+}
 
-export function formatMenuOverview(menu: MenuData, weekStart: string): string {
-  const lines = [`📅 <b>Menu semaine du ${weekStart}</b>\n`];
+export function formatMenuOverview(locale: Locale, menu: MenuData, weekStart: string): string {
+  const lines = [t(locale, "format.menu_week", { weekStart })];
 
   for (const [dayKey, dayMenu] of Object.entries(menu.days)) {
-    lines.push(`<b>${DAY_LABELS[dayKey] ?? dayKey}</b>`);
+    lines.push(`<b>${dayLabel(locale, dayKey)}</b>`);
     for (const [mealKey, meal] of Object.entries(dayMenu)) {
       const m = meal as Meal;
-      lines.push(`  ${MEAL_LABELS[mealKey] ?? mealKey} : ${m.name}`);
+      lines.push(`  ${mealLabel(locale, mealKey)} : ${m.name}`);
     }
     lines.push("");
   }
@@ -32,11 +24,11 @@ export function formatMenuOverview(menu: MenuData, weekStart: string): string {
   return lines.join("\n");
 }
 
-export function formatDayDetail(dayKey: string, dayMenu: DayMenu): string {
-  const lines = [`📅 <b>${DAY_LABELS[dayKey] ?? dayKey}</b>\n`];
+export function formatDayDetail(locale: Locale, dayKey: string, dayMenu: DayMenu): string {
+  const lines = [`📅 <b>${dayLabel(locale, dayKey)}</b>\n`];
   for (const [mealKey, meal] of Object.entries(dayMenu)) {
     const m = meal as Meal;
-    lines.push(`${MEAL_LABELS[mealKey] ?? mealKey} : ${m.name}`);
+    lines.push(`${mealLabel(locale, mealKey)} : ${m.name}`);
   }
   return lines.join("\n");
 }
@@ -44,7 +36,7 @@ export function formatDayDetail(dayKey: string, dayMenu: DayMenu): string {
 export function formatRecipe(meal: Meal): string {
   const lines = [
     `🍳 <b>${meal.name}</b>`,
-    `⏱ Préparation : ${meal.prep_time}\n`,
+    `⏱ ${meal.prep_time}\n`,
   ];
   meal.steps.forEach((step, i) => {
     lines.push(`${i + 1}. ${step}`);
@@ -52,36 +44,36 @@ export function formatRecipe(meal: Meal): string {
   return lines.join("\n");
 }
 
-export function formatRecipeStep(meal: Meal, stepIndex: number): string {
+export function formatRecipeStep(locale: Locale, meal: Meal, stepIndex: number): string {
   const total = meal.steps.length;
   const lines = [
     `🍳 <b>${meal.name}</b>`,
     `⏱ ${meal.prep_time}\n`,
-    `<b>Étape ${stepIndex + 1}/${total}</b>\n`,
+    t(locale, "format.step", { current: stepIndex + 1, total }),
     meal.steps[stepIndex],
   ];
   return lines.join("\n");
 }
 
-export function formatIngredients(meal: Meal): string {
-  const lines = [`🥕 <b>Ingrédients — ${meal.name}</b>\n`];
+export function formatIngredients(locale: Locale, meal: Meal): string {
+  const lines = [t(locale, "format.ingredients_title", { name: meal.name })];
   for (const ing of meal.ingredients) {
-    lines.push(`  • ${ing.quantity} ${ing.unit} de ${ing.name}`);
+    lines.push(`  ${t(locale, "format.ingredient_line", { quantity: ing.quantity, unit: ing.unit, name: ing.name })}`);
   }
   return lines.join("\n");
 }
 
-export function formatBatchCooking(menu: MenuData): string {
+export function formatBatchCooking(locale: Locale, menu: MenuData): string {
   if (!menu.batch_cooking) return "";
-  const lines = [`🍳 <b>Batch cooking — ${menu.batch_cooking.day}</b>\n`];
+  const lines = [t(locale, "format.batch_title", { day: menu.batch_cooking.day })];
   for (const prep of menu.batch_cooking.preparations) {
-    lines.push(`  • ${prep.task} <i>(${prep.duration})</i>`);
+    lines.push(`  ${t(locale, "format.batch_line", { task: prep.task, duration: prep.duration })}`);
   }
   return lines.join("\n");
 }
 
-export function formatShoppingList(items: ShoppingItem[], weekStart: string): string {
-  const lines = [`🛒 <b>Liste de courses — Semaine du ${weekStart}</b>\n`];
+export function formatShoppingList(locale: Locale, items: ShoppingItem[], weekStart: string): string {
+  const lines = [t(locale, "format.shopping_title", { weekStart })];
   const byCategory = new Map<string, ShoppingItem[]>();
   for (const item of items) {
     const list = byCategory.get(item.category) ?? [];
@@ -89,13 +81,11 @@ export function formatShoppingList(items: ShoppingItem[], weekStart: string): st
     byCategory.set(item.category, list);
   }
   for (const [category, catItems] of byCategory) {
-    lines.push(`<b>${category} :</b>`);
+    lines.push(t(locale, "format.shopping_category", { category }));
     for (const item of catItems) {
-      lines.push(`  • ${item.quantity} ${item.unit} — ${item.name}`);
+      lines.push(`  ${t(locale, "format.shopping_item", { quantity: item.quantity, unit: item.unit, name: item.name })}`);
     }
     lines.push("");
   }
   return lines.join("\n");
 }
-
-export { DAY_LABELS, MEAL_LABELS };

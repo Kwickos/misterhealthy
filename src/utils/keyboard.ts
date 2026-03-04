@@ -1,151 +1,158 @@
 import { InlineKeyboard, Keyboard } from "grammy";
 import type { DayMenu, MenuData } from "../types.js";
-import { DAY_LABELS, MEAL_LABELS } from "./format.js";
+import { t, dayLabel, mealLabel, type Locale } from "../i18n/index.js";
 
-export function mainKeyboard(): Keyboard {
+export function mainKeyboard(locale: Locale): Keyboard {
   return new Keyboard()
-    .text("🍽 Générer menu").text("📋 Mon menu")
+    .text(t(locale, "kb.generate_menu")).text(t(locale, "kb.my_menu"))
     .row()
-    .text("🛒 Liste de courses").text("📊 Mes stats")
+    .text(t(locale, "kb.shopping_list")).text(t(locale, "kb.my_stats"))
     .row()
-    .text("👤 Mon profil")
+    .text(t(locale, "kb.my_profile"))
     .resized()
     .persistent();
 }
 
-export function daysKeyboard(menu: MenuData): InlineKeyboard {
+export function daysKeyboard(locale: Locale, menu: MenuData): InlineKeyboard {
   const kb = new InlineKeyboard();
   const days = Object.keys(menu.days);
   for (let i = 0; i < days.length; i++) {
-    kb.text(DAY_LABELS[days[i]] ?? days[i], `day:${days[i]}`);
+    kb.text(dayLabel(locale, days[i]), `day:${days[i]}`);
     if ((i + 1) % 4 === 0) kb.row();
   }
   if (menu.batch_cooking) {
-    kb.row().text("🍳 Batch cooking", "batch:view");
+    kb.row().text(t(locale, "kb.batch_cooking"), "batch:view");
   }
-  kb.row().text("🗑 Supprimer ce menu", "menu:delete");
+  kb.row().text(t(locale, "kb.delete_menu"), "menu:delete");
   return kb;
 }
 
-export function dayMealsKeyboard(dayKey: string, dayMenu: DayMenu): InlineKeyboard {
+export function dayMealsKeyboard(locale: Locale, dayKey: string, dayMenu: DayMenu): InlineKeyboard {
   const kb = new InlineKeyboard();
   for (const mealKey of Object.keys(dayMenu)) {
-    const label = MEAL_LABELS[mealKey] ?? mealKey;
+    const label = mealLabel(locale, mealKey);
     kb.text(`📖 ${label}`, `recipe:${dayKey}:${mealKey}`);
     kb.text(`🥕 ${label}`, `ingredients:${dayKey}:${mealKey}`);
     kb.row();
   }
-  kb.text("⬅️ Retour", "back:menu");
+  kb.text(t(locale, "kb.back"), "back:menu");
   return kb;
 }
 
-export function recipeBackKeyboard(dayKey: string): InlineKeyboard {
-  return new InlineKeyboard().text("⬅️ Retour", `day:${dayKey}`);
+export function recipeBackKeyboard(locale: Locale, dayKey: string): InlineKeyboard {
+  return new InlineKeyboard().text(t(locale, "kb.back"), `day:${dayKey}`);
 }
 
 export function recipeStepKeyboard(
+  locale: Locale,
   dayKey: string,
   mealKey: string,
   stepIndex: number,
-  totalSteps: number
+  totalSteps: number,
 ): InlineKeyboard {
   const kb = new InlineKeyboard();
   if (stepIndex > 0) {
-    kb.text("⬅️ Précédent", `step:${dayKey}:${mealKey}:${stepIndex - 1}`);
+    kb.text(t(locale, "kb.previous"), `step:${dayKey}:${mealKey}:${stepIndex - 1}`);
   }
   if (stepIndex < totalSteps - 1) {
-    kb.text("Suivant ➡️", `step:${dayKey}:${mealKey}:${stepIndex + 1}`);
+    kb.text(t(locale, "kb.next"), `step:${dayKey}:${mealKey}:${stepIndex + 1}`);
   }
   kb.row();
-  kb.text("📋 Toutes les étapes", `recipe_full:${dayKey}:${mealKey}`);
+  kb.text(t(locale, "kb.all_steps"), `recipe_full:${dayKey}:${mealKey}`);
   kb.row();
-  kb.text("⬅️ Retour", `day:${dayKey}`);
+  kb.text(t(locale, "kb.back"), `day:${dayKey}`);
   return kb;
 }
 
-export function generateMenuKeyboard(): InlineKeyboard {
+export function generateMenuKeyboard(locale: Locale): InlineKeyboard {
   return new InlineKeyboard()
-    .text("✅ Générer", "gen:confirm")
-    .text("📅 Modifier les jours", "gen:days")
+    .text(t(locale, "kb.generate"), "gen:confirm")
+    .text(t(locale, "kb.edit_days"), "gen:days")
     .row()
-    .text("✏️ Précisions", "gen:instructions");
+    .text(t(locale, "kb.edit_instructions"), "gen:instructions");
 }
 
-export function onboardingGoalKeyboard(): InlineKeyboard {
+export function onboardingGoalKeyboard(locale: Locale): InlineKeyboard {
   return new InlineKeyboard()
-    .text("Perte de poids", "goal:perte_poids")
-    .text("Prise de masse", "goal:prise_masse")
+    .text(t(locale, "goal.perte_poids"), "goal:perte_poids")
+    .text(t(locale, "goal.prise_masse"), "goal:prise_masse")
     .row()
-    .text("Maintien", "goal:maintien")
-    .text("Mieux manger", "goal:manger_equilibre")
+    .text(t(locale, "goal.maintien"), "goal:maintien")
+    .text(t(locale, "goal.manger_equilibre"), "goal:manger_equilibre")
     .row()
-    .text("❌ Annuler", "conv:cancel");
+    .text(t(locale, "kb.cancel"), "conv:cancel");
 }
 
-export function onboardingServingsKeyboard(): InlineKeyboard {
+export function onboardingServingsKeyboard(locale: Locale): InlineKeyboard {
   return new InlineKeyboard()
     .text("1", "servings:1")
     .text("2", "servings:2")
     .text("3", "servings:3")
     .text("4+", "servings:4")
     .row()
-    .text("❌ Annuler", "conv:cancel");
+    .text(t(locale, "kb.cancel"), "conv:cancel");
 }
 
-export function onboardingMealsKeyboard(): InlineKeyboard {
+export function onboardingMealsKeyboard(locale: Locale): InlineKeyboard {
   return new InlineKeyboard()
-    .text("🌅 Petit-déj", "meal:petit_dej")
-    .text("🍽 Déjeuner", "meal:dejeuner")
+    .text(t(locale, "meal.petit_dej"), "meal:petit_dej")
+    .text(t(locale, "meal.dejeuner"), "meal:dejeuner")
     .row()
-    .text("🍰 Collation", "meal:collation")
-    .text("🌙 Dîner", "meal:diner")
+    .text(t(locale, "meal.collation"), "meal:collation")
+    .text(t(locale, "meal.diner"), "meal:diner")
     .row()
-    .text("✅ Valider", "meals:done")
+    .text(t(locale, "kb.validate"), "meals:done")
     .row()
-    .text("❌ Annuler", "conv:cancel");
+    .text(t(locale, "kb.cancel"), "conv:cancel");
 }
 
-export function onboardingDaysKeyboard(): InlineKeyboard {
+export function onboardingDaysKeyboard(locale: Locale): InlineKeyboard {
   const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
   const kb = new InlineKeyboard();
   for (let i = 0; i < days.length; i++) {
-    kb.text(DAY_LABELS[days[i]], `onb_day:${days[i]}`);
+    kb.text(dayLabel(locale, days[i]), `onb_day:${days[i]}`);
     if ((i + 1) % 4 === 0) kb.row();
   }
-  kb.row().text("✅ Valider", "onb_days:done");
-  kb.row().text("❌ Annuler", "conv:cancel");
+  kb.row().text(t(locale, "kb.validate"), "onb_days:done");
+  kb.row().text(t(locale, "kb.cancel"), "conv:cancel");
   return kb;
 }
 
-export function onboardingBatchKeyboard(): InlineKeyboard {
+export function onboardingBatchKeyboard(locale: Locale): InlineKeyboard {
   return new InlineKeyboard()
-    .text("Oui", "batch:true")
-    .text("Non", "batch:false")
+    .text(t(locale, "batch.yes"), "batch:true")
+    .text(t(locale, "batch.no"), "batch:false")
     .row()
-    .text("❌ Annuler", "conv:cancel");
+    .text(t(locale, "kb.cancel"), "conv:cancel");
 }
 
-export function onboardingRestrictionsKeyboard(): InlineKeyboard {
+export function onboardingRestrictionsKeyboard(locale: Locale): InlineKeyboard {
   return new InlineKeyboard()
-    .text("Végétarien", "restrict:vegetarien")
-    .text("Sans gluten", "restrict:sans_gluten")
+    .text(t(locale, "restriction.vegetarien"), "restrict:vegetarien")
+    .text(t(locale, "restriction.sans_gluten"), "restrict:sans_gluten")
     .row()
-    .text("Sans lactose", "restrict:sans_lactose")
-    .text("Aucune", "restrict:aucune")
+    .text(t(locale, "restriction.sans_lactose"), "restrict:sans_lactose")
+    .text(t(locale, "restriction.aucune"), "restrict:aucune")
     .row()
-    .text("✅ Valider", "restrictions:done")
+    .text(t(locale, "kb.validate"), "restrictions:done")
     .row()
-    .text("❌ Annuler", "conv:cancel");
+    .text(t(locale, "kb.cancel"), "conv:cancel");
 }
 
-export function onboardingEquipmentKeyboard(): InlineKeyboard {
+export function onboardingEquipmentKeyboard(locale: Locale): InlineKeyboard {
   return new InlineKeyboard()
-    .text("Four", "equip:four")
-    .text("Robot cuisine", "equip:robot_cuisine")
+    .text(t(locale, "equipment.four"), "equip:four")
+    .text(t(locale, "equipment.robot_cuisine"), "equip:robot_cuisine")
     .row()
-    .text("Airfryer", "equip:airfryer")
-    .text("Micro-ondes", "equip:micro_ondes")
+    .text(t(locale, "equipment.airfryer"), "equip:airfryer")
+    .text(t(locale, "equipment.micro_ondes"), "equip:micro_ondes")
     .row()
-    .text("Plaques seules", "equip:plaques")
-    .text("✅ Valider", "equipment:done");
+    .text(t(locale, "equipment.plaques"), "equip:plaques")
+    .text(t(locale, "kb.validate"), "equipment:done");
+}
+
+export function languageKeyboard(): InlineKeyboard {
+  return new InlineKeyboard()
+    .text("🇫🇷 Français", "lang:fr")
+    .text("🇬🇧 English", "lang:en");
 }
