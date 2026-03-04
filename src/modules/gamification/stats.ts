@@ -3,7 +3,7 @@ import { getLocale } from "../../bot.js";
 import { getProfile, getOrCreateUserStats, getUserBadges, getAllBadgeDefinitions, getReminderSettings, updateReminderSettings } from "../../services/database.js";
 import { getLevelTitle, xpForNextLevel, totalXpForLevel } from "../../services/gamification.js";
 import { InlineKeyboard } from "grammy";
-import { t, DEFAULT_LOCALE, type Locale } from "../../i18n/index.js";
+import { t, badgeName, badgeDesc, DEFAULT_LOCALE, type Locale } from "../../i18n/index.js";
 
 const BADGES_PER_PAGE = 10;
 
@@ -70,11 +70,11 @@ export async function handleBadgesCallback(ctx: BotContext) {
     if (earnedIds.has(badge.id)) {
       const userBadge = earned.find(e => e.badge_id === badge.id);
       const date = userBadge ? new Date(userBadge.earned_at).toLocaleDateString(dateLocale) : "";
-      lines.push(`${badge.emoji} <b>${badge.name}</b> — ${date}`);
-      lines.push(`  <i>${badge.description}</i>`);
+      lines.push(`${badge.emoji} <b>${badgeName(locale, badge.name)}</b> — ${date}`);
+      lines.push(`  <i>${badgeDesc(locale, badge.description)}</i>`);
     } else {
-      lines.push(`⬜ <b>${badge.name}</b>`);
-      lines.push(`  <i>${badge.description}</i>`);
+      lines.push(`⬜ <b>${badgeName(locale, badge.name)}</b>`);
+      lines.push(`  <i>${badgeDesc(locale, badge.description)}</i>`);
     }
   }
 

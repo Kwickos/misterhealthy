@@ -4,7 +4,7 @@ import { getProfile, getLatestMenu, getTodayValidations } from "../../services/d
 import { processValidation } from "../../services/gamification.js";
 import type { MenuData, Meal } from "../../types.js";
 import { InlineKeyboard } from "grammy";
-import { t, mealLabel, DEFAULT_LOCALE, type Locale } from "../../i18n/index.js";
+import { t, mealLabel, badgeName, badgeDesc, DEFAULT_LOCALE, type Locale } from "../../i18n/index.js";
 
 const DAY_NAMES = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 
@@ -161,8 +161,8 @@ function formatValidationResult(locale: Locale, result: import("../../services/g
 
   for (const badge of result.newBadges) {
     lines.push("");
-    lines.push(t(locale, "gamification.new_badge", { emoji: badge.emoji, name: badge.name }));
-    lines.push(badge.description);
+    lines.push(t(locale, "gamification.new_badge", { emoji: badge.emoji, name: badgeName(locale, badge.name) }));
+    lines.push(badgeDesc(locale, badge.description));
   }
 
   return lines.join("\n");

@@ -25,6 +25,18 @@ export function mealLabel(locale: Locale, mealKey: string): string {
   return t(locale, `meal.${mealKey}` as TranslationKey) ?? mealKey;
 }
 
+export function badgeName(locale: Locale, dbName: string): string {
+  const key = `badge.name.${dbName}` as TranslationKey;
+  const result = t(locale, key);
+  return result === key ? dbName : result;
+}
+
+export function badgeDesc(locale: Locale, dbDescription: string): string {
+  const key = `badge.desc.${dbDescription}` as TranslationKey;
+  const result = t(locale, key);
+  return result === key ? dbDescription : result;
+}
+
 export function dayLabel(locale: Locale, dayKey: string): string {
   return t(locale, `day.${dayKey}` as TranslationKey) ?? dayKey;
 }
