@@ -197,14 +197,14 @@ describe("checkLevelUp", () => {
     const result = checkLevelUp(50, 1);
     expect(result).not.toBeNull();
     expect(result!.newLevel).toBe(2);
-    expect(result!.title).toBe("Marmiton");
+    expect(result!.title).toBe("Kitchen helper");
   });
 
   it("returns new level and title when XP exceeds threshold", () => {
     const result = checkLevelUp(200, 1);
     expect(result).not.toBeNull();
     expect(result!.newLevel).toBe(2);
-    expect(result!.title).toBe("Marmiton");
+    expect(result!.title).toBe("Kitchen helper");
   });
 
   it("levels up from level 2 to level 3 correctly", () => {

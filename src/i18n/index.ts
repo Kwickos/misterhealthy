@@ -2,7 +2,7 @@ import { fr, type TranslationKey } from "./locales/fr.js";
 import { en } from "./locales/en.js";
 
 export type Locale = "fr" | "en";
-export const DEFAULT_LOCALE: Locale = "fr";
+export const DEFAULT_LOCALE: Locale = "en";
 export const SUPPORTED_LOCALES: Locale[] = ["fr", "en"];
 
 const translations: Record<Locale, Record<string, string>> = { fr, en };
