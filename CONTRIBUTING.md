@@ -1,82 +1,82 @@
-# Contribuer a MisterHealthy
+# Contributing to MisterHealthy
 
-Merci de vouloir contribuer ! Voici comment faire.
+Thanks for wanting to contribute! Here's how to get started.
 
-## Signaler un bug
+## Report a bug
 
-Ouvre une [issue](https://github.com/Kwickos/misterhealthy/issues/new?template=bug_report.md) avec :
-- Ce que tu as fait
-- Ce qui s'est passe
-- Ce que tu attendais
+Open an [issue](https://github.com/Kwickos/misterhealthy/issues/new?template=bug_report.md) with:
+- What you did
+- What happened
+- What you expected
 
-## Proposer une fonctionnalite
+## Suggest a feature
 
-Ouvre une [issue](https://github.com/Kwickos/misterhealthy/issues/new?template=feature_request.md) avec ta proposition. On en discute avant de coder.
+Open an [issue](https://github.com/Kwickos/misterhealthy/issues/new?template=feature_request.md) with your proposal. Let's discuss before coding.
 
-## Contribuer du code
+## Contribute code
 
-### Workflow Git
+### Git workflow
 
-Le projet utilise deux branches principales :
-- `master` — branche stable (production)
-- `develop` — branche d'integration (les PR vont ici)
+The project uses two main branches:
+- `master` — stable branch (production)
+- `develop` — integration branch (PRs go here)
 
-### Etapes
+### Steps
 
-1. Fork le repo
-2. Clone ton fork : `git clone https://github.com/TON_USER/misterhealthy.git`
-3. Ajoute le repo original comme remote : `git remote add upstream https://github.com/Kwickos/misterhealthy.git`
-4. Cree ta branche depuis `develop` :
+1. Fork the repo
+2. Clone your fork: `git clone https://github.com/YOUR_USER/misterhealthy.git`
+3. Add the original repo as a remote: `git remote add upstream https://github.com/Kwickos/misterhealthy.git`
+4. Create your branch from `develop`:
    ```bash
    git checkout develop
    git pull upstream develop
-   git checkout -b feat/ma-feature
+   git checkout -b feat/my-feature
    ```
-5. Code tes changements
-6. Lance les tests : `npm test`
-7. Commit en suivant les conventions : `git commit -m "feat: description"`
-8. Push : `git push origin feat/ma-feature`
-9. Ouvre une Pull Request **vers `develop`** (pas `master`)
+5. Code your changes
+6. Run tests: `npm test`
+7. Commit following conventions: `git commit -m "feat: description"`
+8. Push: `git push origin feat/my-feature`
+9. Open a Pull Request **targeting `develop`** (not `master`)
 
-### Nommage des branches
+### Branch naming
 
-| Prefixe | Usage |
-|---------|-------|
-| `feat/` | Nouvelle fonctionnalite |
-| `fix/` | Correction de bug |
+| Prefix | Usage |
+|--------|-------|
+| `feat/` | New feature |
+| `fix/` | Bug fix |
 | `docs/` | Documentation |
 | `chore/` | Maintenance, CI, config |
 
 ## Conventions
 
-- **Commits** : format [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, etc.)
-- **TypeScript** : strict mode, pas de `any`
-- **Tests** : ajoute des tests pour les nouvelles fonctionnalites
-- **Langue** : code et commentaires en anglais, messages utilisateur en francais
+- **Commits**: [Conventional Commits](https://www.conventionalcommits.org/) format (`feat:`, `fix:`, `chore:`, etc.)
+- **TypeScript**: strict mode, no `any`
+- **Tests**: add tests for new features
+- **Language**: code and comments in English
 
-## Setup local
+## Local setup
 
 ```bash
-# Installer Node.js 20 (voir .nvmrc)
+# Install Node.js 20 (see .nvmrc)
 nvm use
 
-# Installer les dependances
+# Install dependencies
 npm install
 
-# Configurer l'environnement
+# Set up environment
 cp .env.example .env
-# Remplir TELEGRAM_BOT_TOKEN et GEMINI_API_KEY dans .env
-# (pas besoin de service externe — SQLite est embarqué)
+# Fill in TELEGRAM_BOT_TOKEN and GEMINI_API_KEY in .env
+# (no external service needed — SQLite is embedded)
 
-# Lancer en dev (hot reload)
+# Run in dev (hot reload)
 npm run dev
-# La base de données SQLite est créée automatiquement dans data/
+# The SQLite database is created automatically in data/
 
-# Lancer les tests
+# Run tests
 npm test
-npm run test:watch  # mode watch
+npm run test:watch  # watch mode
 ```
 
 ## Structure
 
-Voir le [README](README.md) pour la structure du projet.
+See the [README](README.md) for the project structure.

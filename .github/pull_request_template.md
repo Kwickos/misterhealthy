@@ -1,24 +1,24 @@
 ## Description
 
-Qu'est-ce que cette PR change ?
+What does this PR change?
 
-## Type de changement
+## Type of change
 
 - [ ] Bug fix
-- [ ] Nouvelle fonctionnalite
+- [ ] New feature
 - [ ] Refactoring
 - [ ] Documentation
-- [ ] Autre (preciser)
+- [ ] Other (specify)
 
 ## Checklist
 
-- [ ] Mon code suit les conventions du projet (TypeScript strict, pas de `any`)
-- [ ] J'ai ajoute des tests pour mes changements
-- [ ] Les tests existants passent (`npm test`)
-- [ ] J'ai mis a jour la documentation si necessaire
+- [ ] My code follows project conventions (strict TypeScript, no `any`)
+- [ ] I added tests for my changes
+- [ ] Existing tests pass (`npm test`)
+- [ ] I updated documentation if needed
 
-## Screenshots (si applicable)
+## Screenshots (if applicable)
 
-## Issue liee
+## Related issue
 
 Closes #

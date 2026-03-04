@@ -5,125 +5,125 @@
 [![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-26A5E4.svg?logo=telegram)](https://core.telegram.org/bots)
 [![Gemini AI](https://img.shields.io/badge/Gemini-3_Flash-4285F4.svg?logo=google)](https://ai.google.dev/)
 
-Bot Telegram de planification de repas personnalisé, propulsé par l'IA.
+AI-powered Telegram bot for personalized meal planning.
 
-MisterHealthy génère des menus hebdomadaires adaptés à ton profil (objectif, restrictions, équipement cuisine), avec recettes détaillées, liste de courses automatique et un système de gamification pour rester motivé.
+MisterHealthy generates weekly menus tailored to your profile (goals, dietary restrictions, kitchen equipment), with detailed recipes, automatic shopping lists, and a gamification system to keep you motivated.
 
-## Fonctionnalités
+## Features
 
-**Menu intelligent**
-- Génération de menus hebdomadaires par IA (Gemini 3 Flash)
-- Choix des jours, repas et nombre de personnes à chaque génération
-- Recettes complètes étape par étape avec navigation inline
-- Optimisation de la réutilisation des ingrédients (zéro gaspi)
-- Mode batch cooking avec instructions de préparation
+**Smart menus**
+- AI-generated weekly menus (Gemini 3 Flash)
+- Choose days, meals, and servings for each generation
+- Full step-by-step recipes with inline navigation
+- Ingredient reuse optimization (zero waste)
+- Batch cooking mode with preparation instructions
 
-**Profil personnalisé**
-- Objectif : perte de poids, prise de masse, maintien, mieux manger
-- Restrictions alimentaires : végétarien, sans gluten, sans lactose...
-- Équipement cuisine en texte libre
-- Préférences supplémentaires
+**Personalized profile**
+- Goals: weight loss, muscle gain, maintenance, eat healthier
+- Dietary restrictions: vegetarian, gluten-free, lactose-free...
+- Kitchen equipment (free text)
+- Additional preferences
 
-**Liste de courses**
-- Agrégation automatique des ingrédients de la semaine
-- Dédoublication intelligente
-- Catégorisation par rayon
+**Shopping list**
+- Automatic weekly ingredient aggregation
+- Smart deduplication
+- Categorized by aisle
 
 **Gamification**
-- XP et niveaux (Débutant → Gordon Ramsay, 20 niveaux)
-- Streaks quotidiens avec alertes
-- 89+ badges (fixes + contextuels attribués par l'IA)
-- Validation des repas avec photo optionnelle
-- Rappels automatiques à l'heure de chaque repas
-- L'IA peut inventer de nouveaux badges uniques
+- XP and levels (Beginner → Gordon Ramsay, 20 levels)
+- Daily streaks with alerts
+- 89+ badges (fixed + contextual, assigned by AI)
+- Meal validation with optional photo
+- Automatic reminders at each meal time
+- AI can invent unique new badges
 
-**Multi-langue (i18n)**
-- Français et anglais supportés
-- Sélection de la langue à l'inscription
-- Commande `/language` pour changer à tout moment
-- Les menus générés par l'IA s'adaptent à la langue choisie
+**Multi-language (i18n)**
+- French and English supported
+- Language selection during onboarding
+- `/language` command to switch anytime
+- AI-generated menus adapt to the chosen language
 
-**Sécurité**
-- Accès privé par code d'invitation
-- Deep link Telegram (`t.me/BOT?start=CODE`) ou saisie dans le chat
+**Security**
+- Private access via invite code
+- Telegram deep link (`t.me/BOT?start=CODE`) or chat input
 
-## Stack technique
+## Tech stack
 
-| Composant | Technologie |
-|-----------|-------------|
+| Component | Technology |
+|-----------|------------|
 | Runtime | Node.js + TypeScript (ESM) |
 | Bot framework | grammY + @grammyjs/conversations |
-| IA | Google Gemini 3 Flash Preview (@google/genai) |
-| Base de données | SQLite (better-sqlite3, zero config) |
+| AI | Google Gemini 3 Flash Preview (@google/genai) |
+| Database | SQLite (better-sqlite3, zero config) |
 | Dev | tsx (watch mode), Vitest |
 
-## Structure du projet
+## Project structure
 
 ```
 src/
-  index.ts                          # Point d'entrée
-  bot.ts                            # Configuration du bot, middleware, routing
-  config.ts                         # Variables d'environnement
-  types.ts                          # Interfaces TypeScript
+  index.ts                          # Entry point
+  bot.ts                            # Bot config, middleware, routing
+  config.ts                         # Environment variables
+  types.ts                          # TypeScript interfaces
   i18n/
-    index.ts                        # Fonction t(), hearsKey(), types Locale
+    index.ts                        # t() function, hearsKey(), Locale types
     locales/
-      fr.ts                         # Traductions françaises
-      en.ts                         # Traductions anglaises
+      fr.ts                         # French translations
+      en.ts                         # English translations
   services/
-    database.ts                     # CRUD SQLite (better-sqlite3)
-    badge-seeds.ts                  # 89 badges prédéfinis
-    gemini.ts                       # Génération de menus par IA
-    gamification.ts                 # Logique XP, niveaux, streaks, badges
-    scheduler.ts                    # Rappels programmés
+    database.ts                     # SQLite CRUD (better-sqlite3)
+    badge-seeds.ts                  # 89 predefined badges
+    gemini.ts                       # AI menu generation
+    gamification.ts                 # XP, levels, streaks, badges logic
+    scheduler.ts                    # Scheduled reminders
   modules/
     profile/
-      onboarding.ts                 # Conversation d'inscription (+ sélection langue)
-      handlers.ts                   # Affichage profil
+      onboarding.ts                 # Onboarding conversation (+ language selection)
+      handlers.ts                   # Profile display
     menu/
-      handlers.ts                   # Génération et navigation menu
-      display.ts                    # Affichage du menu sauvegardé
+      handlers.ts                   # Menu generation and navigation
+      display.ts                    # Saved menu display
     shopping/
-      handlers.ts                   # Liste de courses
+      handlers.ts                   # Shopping list
     gamification/
-      handlers.ts                   # Validation des repas
-      stats.ts                      # Stats, badges, horaires
+      handlers.ts                   # Meal validation
+      stats.ts                      # Stats, badges, reminder times
   utils/
-    format.ts                       # Formatage des messages HTML
-    keyboard.ts                     # Claviers inline et persistants
-    shopping.ts                     # Agrégation des ingrédients
+    format.ts                       # HTML message formatting
+    keyboard.ts                     # Inline and persistent keyboards
+    shopping.ts                     # Ingredient aggregation
 ```
 
 ## Installation
 
 ```bash
-# Cloner le repo
-git clone <repo-url>
+# Clone the repo
+git clone https://github.com/Kwickos/misterhealthy.git
 cd misterhealthy
 
-# Installer les dépendances
+# Install dependencies
 npm install
 
-# Configurer les variables d'environnement
+# Set up environment variables
 cp .env.example .env
-# Remplir les valeurs dans .env
+# Fill in the values in .env
 ```
 
-### Variables d'environnement
+### Environment variables
 
 | Variable | Description |
 |----------|-------------|
-| `TELEGRAM_BOT_TOKEN` | Token du bot via @BotFather |
-| `GEMINI_API_KEY` | Clé API Google AI Studio |
-| `INVITE_CODE` | Code d'invitation (optionnel, vide = accès libre) |
-| `DATABASE_PATH` | Chemin vers la DB SQLite (par défaut : `./data/misterhealthy.db`) |
+| `TELEGRAM_BOT_TOKEN` | Bot token from @BotFather |
+| `GEMINI_API_KEY` | Google AI Studio API key |
+| `INVITE_CODE` | Invite code (optional, empty = open access) |
+| `DATABASE_PATH` | Path to SQLite DB (default: `./data/misterhealthy.db`) |
 
-> **Aucun service externe requis** pour la base de données : SQLite est embarqué, le fichier DB est créé automatiquement au premier lancement.
+> **No external service required** for the database: SQLite is embedded, the DB file is created automatically on first launch.
 
-## Lancement
+## Usage
 
 ```bash
-# Développement (hot reload)
+# Development (hot reload)
 npm run dev
 
 # Production
@@ -133,62 +133,62 @@ npm start
 npm test
 ```
 
-## Commandes du bot
+## Bot commands
 
-| Commande | Description |
-|----------|-------------|
-| `/start` | Inscription ou retour au menu principal |
-| `/stats` | Voir ses statistiques et progression |
-| `/badges` | Voir sa collection de badges |
-| `/horaires` | Modifier les heures de rappel |
-| `/language` | Changer la langue (FR/EN) |
-| `/cancel` | Annuler une conversation en cours |
+| Command | Description |
+|---------|-------------|
+| `/start` | Sign up or return to main menu |
+| `/stats` | View your stats and progression |
+| `/badges` | View your badge collection |
+| `/horaires` | Change reminder times |
+| `/language` | Change language (FR/EN) |
+| `/cancel` | Cancel current conversation |
 
-## Clavier principal
+## Main keyboard
 
-| Bouton | Action |
+| Button | Action |
 |--------|--------|
-| Générer menu | Lance la génération (jours, repas, personnes, instructions) |
-| Mon menu | Affiche le dernier menu avec navigation |
-| Liste de courses | Affiche la liste agrégée |
-| Mes stats | Affiche XP, niveau, streak, badges |
-| Mon profil | Affiche et permet d'éditer le profil |
+| Generate menu | Start generation (days, meals, servings, instructions) |
+| My menu | View saved menu with navigation |
+| Shopping list | View aggregated shopping list |
+| My stats | View XP, level, streak, badges |
+| My profile | View and edit profile |
 
 ---
 
 ## Roadmap
 
-### V1 — Bot Telegram (actuel)
-- [x] Génération de menus IA personnalisés
-- [x] Profil utilisateur complet
-- [x] Recettes étape par étape
-- [x] Liste de courses automatique
+### V1 — Telegram Bot (current)
+- [x] AI-powered personalized menus
+- [x] Full user profile
+- [x] Step-by-step recipes
+- [x] Automatic shopping list
 - [x] Batch cooking
-- [x] Système d'invitation privé
-- [x] Gamification (XP, niveaux, streaks, badges)
-- [x] Rappels automatiques
-- [x] Badges contextuels par IA
-- [x] Multi-langue (FR/EN)
-- [ ] Photo "Qu'est-ce que je fais avec ça ?" (Gemini Vision analyse le frigo et propose des recettes)
-- [ ] Historique des menus passés
-- [ ] Partage de recettes favorites entre utilisateurs
+- [x] Private invite system
+- [x] Gamification (XP, levels, streaks, badges)
+- [x] Automatic reminders
+- [x] AI contextual badges
+- [x] Multi-language (FR/EN)
+- [ ] "What can I make with this?" photo (Gemini Vision analyzes fridge and suggests recipes)
+- [ ] Past menu history
+- [ ] Share favorite recipes between users
 
-### V2 — Personnage évolutif
-- [ ] Avatar pixel art qui évolue avec le niveau (20 sprites)
-- [ ] Cosmétiques débloqués par les badges (toque, accessoires, fonds)
-- [ ] Slots équipables : tête, main, accessoire
-- [ ] Commande `/look` pour voir et personnaliser son personnage
-- [ ] Composition d'image dynamique (Sharp)
+### V2 — Evolving character
+- [ ] Pixel art avatar that evolves with level (20 sprites)
+- [ ] Cosmetics unlocked by badges (chef hat, accessories, backgrounds)
+- [ ] Equippable slots: head, hand, accessory
+- [ ] `/look` command to view and customize your character
+- [ ] Dynamic image composition (Sharp)
 
 ### V3 — Social
-- [ ] Classements entre amis
-- [ ] Défis hebdomadaires entre utilisateurs
-- [ ] Partage de son personnage et ses stats
-- [ ] Achievements collaboratifs (cuisiner le même plat entre potes)
+- [ ] Friend leaderboards
+- [ ] Weekly challenges between users
+- [ ] Share your character and stats
+- [ ] Collaborative achievements (cook the same dish with friends)
 
-### V4 — App mobile (si besoin)
-- [ ] Migration vers PWA ou React Native + Expo
-- [ ] UI enrichie pour les recettes (timer, swipe)
-- [ ] Notifications push natives
+### V4 — Mobile app (if needed)
+- [ ] Migration to PWA or React Native + Expo
+- [ ] Enhanced recipe UI (timer, swipe)
+- [ ] Native push notifications
 - [ ] Distribution via TestFlight / APK
 - [ ] Supabase Auth (email / magic link)

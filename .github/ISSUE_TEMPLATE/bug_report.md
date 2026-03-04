@@ -1,33 +1,33 @@
 ---
 name: Bug Report
-about: Signaler un probleme
+about: Report a problem
 title: "[Bug] "
 labels: bug
 ---
 
 ## Description
 
-Decris le bug clairement.
+Describe the bug clearly.
 
-## Comment reproduire
+## Steps to reproduce
 
 1. ...
 2. ...
 3. ...
 
-## Comportement attendu
+## Expected behavior
 
-Ce qui devrait se passer.
+What should happen.
 
-## Comportement actuel
+## Actual behavior
 
-Ce qui se passe.
+What happens instead.
 
 ## Screenshots
 
-Si applicable.
+If applicable.
 
-## Environnement
+## Environment
 
-- Node.js :
-- OS :
+- Node.js:
+- OS:

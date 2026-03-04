@@ -1,22 +1,22 @@
 ---
 name: Feature Request
-about: Proposer une nouvelle fonctionnalite
+about: Suggest a new feature
 title: "[Feature] "
 labels: enhancement
 ---
 
 ## Description
 
-Decris la fonctionnalite que tu aimerais.
+Describe the feature you'd like.
 
 ## Motivation
 
-Pourquoi cette feature serait utile ?
+Why would this feature be useful?
 
-## Solution proposee
+## Proposed solution
 
-Comment tu imagines l'implementation ?
+How do you envision the implementation?
 
 ## Alternatives
 
-As-tu considere d'autres approches ?
+Have you considered other approaches?
